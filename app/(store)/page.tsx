@@ -262,7 +262,7 @@ export default function Home() {
                     alt={category.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 50vw, 33vw"
+                    sizes="(max-width: 768px) 33vw, 33vw"
                     quality={85}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
