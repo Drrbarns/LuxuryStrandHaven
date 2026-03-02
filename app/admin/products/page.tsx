@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export default function ProductsPage() {
@@ -28,17 +28,12 @@ export default function ProductsPage() {
     'archived': 'bg-amber-100 text-amber-700',
   };
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, [sortBy]);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     const { data } = await supabase.from('categories').select('name');
     if (data) setCategories(data);
-  };
+  }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       let query = supabase
@@ -90,7 +85,12 @@ export default function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sortBy]);
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, [fetchProducts, fetchCategories]);
 
   const handleSelectAll = () => {
     if (selectedProducts.length === products.length) {

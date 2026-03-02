@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
@@ -16,14 +16,7 @@ function OrderTrackingContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Auto-track if order number is in the URL
-  useEffect(() => {
-    if (urlOrderNumber) {
-      fetchOrder(urlOrderNumber);
-    }
-  }, [urlOrderNumber]);
-
-  const fetchOrder = async (orderNum: string) => {
+  const fetchOrder = useCallback(async (orderNum: string) => {
     setLoading(true);
     setError('');
 
@@ -68,7 +61,14 @@ function OrderTrackingContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [email]);
+
+  // Auto-track if order number is in the URL
+  useEffect(() => {
+    if (urlOrderNumber) {
+      fetchOrder(urlOrderNumber);
+    }
+  }, [urlOrderNumber, fetchOrder]);
 
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function AccessibilityMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,12 +22,7 @@ export default function AccessibilityMenu() {
     }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('accessibilitySettings', JSON.stringify(settings));
-    applySettings();
-  }, [settings]);
-
-  const applySettings = () => {
+  const applySettings = useCallback(() => {
     const root = document.documentElement;
 
     root.classList.remove('text-sm', 'text-base', 'text-lg', 'text-xl');
@@ -66,7 +61,12 @@ export default function AccessibilityMenu() {
     } else {
       document.body.classList.remove('highlight-links');
     }
-  };
+  }, [settings]);
+
+  useEffect(() => {
+    localStorage.setItem('accessibilitySettings', JSON.stringify(settings));
+    applySettings();
+  }, [settings, applySettings]);
 
   const resetSettings = () => {
     setSettings({

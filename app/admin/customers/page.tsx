@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export default function AdminCustomersPage() {
@@ -12,11 +12,7 @@ export default function AdminCustomersPage() {
   const [sortOption, setSortOption] = useState('Sort by Join Date');
   const [filterStatus, setFilterStatus] = useState('All Customers');
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -72,7 +68,12 @@ export default function AdminCustomersPage() {
     } finally {
       setLoading(false);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetchCustomersFromProfiles is a stable fallback, defined below
+  }, []);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   // Fallback for when customers table doesn't exist
   const fetchCustomersFromProfiles = async () => {

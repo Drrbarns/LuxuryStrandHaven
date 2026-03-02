@@ -202,7 +202,7 @@ function ShopContent() {
     }
 
     fetchProducts();
-  }, [selectedCategory, priceRange, selectedRating, sortBy, page, searchParams]);
+  }, [selectedCategory, priceRange, selectedRating, sortBy, page, searchParams, categories]);
 
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 

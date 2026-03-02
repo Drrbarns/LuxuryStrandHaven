@@ -67,7 +67,7 @@ export default function Header() {
   const { getSetting, getSettingJSON } = useCMS();
 
   const siteName = getSetting('site_name') || 'Luxury Strand Haven';
-  const siteLogo = getSetting('site_logo') || '/logo.png';
+  const siteLogo = '/new.png';
   const logoHeight = getSetting('header_logo_height') || '44';
   const showSearch = getSetting('header_show_search') !== 'false';
   const showWishlist = getSetting('header_show_wishlist') !== 'false';

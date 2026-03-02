@@ -86,8 +86,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     // Custom (non-default) option groups — for selling non-wig products
     const [customGroups, setCustomGroups] = useState<{ name: string; values: string[]; generatesVariants: boolean }[]>(() => {
         const storedCustom = initialData?.metadata?.custom_option_groups as { name: string; values: string[]; generatesVariants?: boolean }[] | undefined;
-        const raw = storedCustom || [];
-        return raw.map(g => ({ name: g.name, values: g.values, generatesVariants: g.generatesVariants ?? false }));
+        return (storedCustom || []).map((g) => ({
+            name: g.name,
+            values: g.values || [],
+            generatesVariants: g.generatesVariants ?? false,
+        }));
     });
     const [customGroupInput, setCustomGroupInput] = useState('');
 

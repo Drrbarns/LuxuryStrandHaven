@@ -186,7 +186,7 @@ export const defaultSettings: SiteSettings = {
     // General
     site_name: 'Luxury Strand Haven',
     site_tagline: 'Your tagline here.',
-    site_logo: '/logo.png',
+    site_logo: '/new.png',
     site_favicon: '/favicon.ico',
     contact_email: 'maame890@gmail.com',
     contact_phone: '054 930 7736',
@@ -283,7 +283,7 @@ export const defaultSettings: SiteSettings = {
     header_show_account: 'true',
 
     // Footer
-    footer_logo: '/haven%20logo%20white.png',
+    footer_logo: '/ChatGPT%20Image%20Feb%2026,%202026,%2012_39_31%20PM.png',
     footer_logo_height: '56',
     footer_newsletter_title: 'Join Our Community',
     footer_newsletter_subtitle: 'Get exclusive access to new arrivals, secret sales, and more.',

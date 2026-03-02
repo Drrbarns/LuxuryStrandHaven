@@ -46,7 +46,7 @@ function OrderSuccessContent() {
       }
     }
     fetchOrder();
-  }, [orderNumber, paystackReference]);
+  }, [orderNumber, paystackReference, paymentSuccess]);
 
   // Payment verification - called when user is redirected from Paystack or Moolre with payment_success=true
   const verifyPayment = async (orderNum: string, initialOrder: any, reference?: string | null) => {

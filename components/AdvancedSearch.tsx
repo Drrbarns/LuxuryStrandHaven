@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -11,6 +11,15 @@ interface SearchSuggestion {
   image: string;
 }
 
+const DEFAULT_PRODUCTS: SearchSuggestion[] = [
+  { id: '1', name: 'Premium Wireless Headphones', category: 'Electronics', price: 450, image: 'https://placehold.co/400x400?text=Sample' },
+  { id: '2', name: 'Smart Fitness Watch', category: 'Wearables', price: 320, image: 'https://placehold.co/400x400?text=Sample' },
+  { id: '3', name: 'Leather Crossbody Bag', category: 'Fashion', price: 289, image: 'https://placehold.co/400x400?text=Sample' },
+  { id: '4', name: 'Minimalist Ceramic Vase Set', category: 'Home Decor', price: 159, image: 'https://placehold.co/400x400?text=Sample' },
+  { id: '5', name: 'Organic Cotton T-Shirt', category: 'Clothing', price: 45, image: 'https://placehold.co/400x400?text=Sample' },
+  { id: '6', name: 'Bamboo Desk Organizer', category: 'Office', price: 68, image: 'https://placehold.co/400x400?text=Sample' }
+];
+
 export default function AdvancedSearch() {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -20,50 +29,7 @@ export default function AdvancedSearch() {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const allProducts: SearchSuggestion[] = [
-    {
-      id: '1',
-      name: 'Premium Wireless Headphones',
-      category: 'Electronics',
-      price: 450,
-      image: 'https://placehold.co/400x400?text=Sample'
-    },
-    {
-      id: '2',
-      name: 'Smart Fitness Watch',
-      category: 'Wearables',
-      price: 320,
-      image: 'https://placehold.co/400x400?text=Sample'
-    },
-    {
-      id: '3',
-      name: 'Leather Crossbody Bag',
-      category: 'Fashion',
-      price: 289,
-      image: 'https://placehold.co/400x400?text=Sample'
-    },
-    {
-      id: '4',
-      name: 'Minimalist Ceramic Vase Set',
-      category: 'Home Decor',
-      price: 159,
-      image: 'https://placehold.co/400x400?text=Sample'
-    },
-    {
-      id: '5',
-      name: 'Organic Cotton T-Shirt',
-      category: 'Clothing',
-      price: 45,
-      image: 'https://placehold.co/400x400?text=Sample'
-    },
-    {
-      id: '6',
-      name: 'Bamboo Desk Organizer',
-      category: 'Office',
-      price: 68,
-      image: 'https://placehold.co/400x400?text=Sample'
-    }
-  ];
+  const allProducts = DEFAULT_PRODUCTS;
 
   useEffect(() => {
     const saved = localStorage.getItem('recentSearches');
@@ -93,7 +59,7 @@ export default function AdvancedSearch() {
     } else {
       setSuggestions([]);
     }
-  }, [query]);
+  }, [query, allProducts]);
 
   const handleSearch = (searchQuery: string) => {
     if (searchQuery.trim()) {

@@ -8,7 +8,7 @@ export default function Footer() {
   const { getSetting } = useCMS();
 
   const siteName = getSetting('site_name') || 'Luxury Strand Haven';
-  const footerLogo = getSetting('footer_logo') || getSetting('site_logo') || '/haven%20logo%20white.png';
+  const footerLogo = '/ChatGPT%20Image%20Feb%2026,%202026,%2012_39_31%20PM.png';
   const footerLogoHeight = getSetting('footer_logo_height') || '40';
   const contactEmail = getSetting('contact_email') || '';
   const contactPhone = getSetting('contact_phone') || '';

@@ -62,7 +62,7 @@ export default function Home() {
   useEffect(() => {
     const t = setInterval(() => setHeroIndex((i) => (i + 1) % HERO_SLIDES.length), HERO_INTERVAL_MS);
     return () => clearInterval(t);
-  }, []);
+  }, [HERO_SLIDES.length]);
   const heroPrimaryText = getSetting('hero_primary_btn_text');
   const heroPrimaryLink = getSetting('hero_primary_btn_link') || '/shop';
   const heroSecondaryText = getSetting('hero_secondary_btn_text');

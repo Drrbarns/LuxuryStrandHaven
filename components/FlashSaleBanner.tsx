@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 interface FlashSale {
   title: string;
@@ -14,13 +14,13 @@ export default function FlashSaleBanner() {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [isVisible, setIsVisible] = useState(true);
 
-  const flashSale: FlashSale = {
+  const flashSale = useMemo<FlashSale>(() => ({
     title: 'Flash Sale',
     discount: 30,
     endTime: new Date(Date.now() + 6 * 60 * 60 * 1000),
     ctaText: 'Shop Now',
     ctaLink: '/shop'
-  };
+  }), []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -41,7 +41,7 @@ export default function FlashSaleBanner() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [flashSale.endTime]);
 
   if (!isVisible) return null;
 

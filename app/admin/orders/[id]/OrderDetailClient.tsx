@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import FraudDetectionAlert from '@/components/FraudDetectionAlert';
 
@@ -46,16 +46,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     };
   }, []);
 
-  useEffect(() => {
-    fetchOrderDetails();
-    // Fetch store name from settings
-    supabase.from('store_settings').select('value').eq('key', 'site_name').single()
-      .then(({ data }) => { if (data?.value) setStoreName(typeof data.value === 'string' ? data.value : String(data.value)); });
-    supabase.from('store_settings').select('value').eq('key', 'contact_email').single()
-      .then(({ data }) => { if (data?.value) setStoreEmail(typeof data.value === 'string' ? data.value : String(data.value)); });
-  }, [orderId]);
-
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     try {
       setLoading(true);
       // Try to fetch by ID or order_number
@@ -125,7 +116,16 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
+
+  useEffect(() => {
+    fetchOrderDetails();
+    // Fetch store name from settings
+    supabase.from('store_settings').select('value').eq('key', 'site_name').single()
+      .then(({ data }) => { if (data?.value) setStoreName(typeof data.value === 'string' ? data.value : String(data.value)); });
+    supabase.from('store_settings').select('value').eq('key', 'contact_email').single()
+      .then(({ data }) => { if (data?.value) setStoreEmail(typeof data.value === 'string' ? data.value : String(data.value)); });
+  }, [orderId, fetchOrderDetails]);
 
   const handleUpdateStatus = async (newStatus?: string) => {
     try {
