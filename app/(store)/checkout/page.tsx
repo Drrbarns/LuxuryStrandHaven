@@ -55,7 +55,7 @@ export default function CheckoutPage() {
   ];
 
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
-  const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'moolre' | 'stripe' | 'paypal'>('paystack');
+  const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'moolre' | 'stripe' | 'paypal'>('moolre');
   const [errors, setErrors] = useState<any>({});
 
 
@@ -666,76 +666,46 @@ export default function CheckoutPage() {
                   </div>
 
                   <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">Payment Method</h2>
-                  <p className="text-sm text-gray-600 mb-4">Select how you’d like to pay. Paystack, Moolre, Stripe, or PayPal — choose one.</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paystack' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="paystack"
-                        checked={paymentMethod === 'paystack'}
-                        onChange={() => setPaymentMethod('paystack')}
-                        className="w-5 h-5 text-gray-900 flex-shrink-0"
-                      />
+                  <p className="text-sm text-gray-600 mb-4">Pay securely with Mobile Money.</p>
+                  <div className="grid grid-cols-1 gap-3">
+                    {/* Paystack — temporarily disabled
+                    <label className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paystack' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                      <input type="radio" name="payment" value="paystack" checked={paymentMethod === 'paystack'} onChange={() => setPaymentMethod('paystack')} className="w-5 h-5 text-gray-900 flex-shrink-0" />
                       <i className="ri-bank-card-line text-xl text-gray-600 flex-shrink-0"></i>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">Paystack</p>
-                        <p className="text-xs text-gray-600 truncate">Card & Mobile Money</p>
-                      </div>
+                      <div className="min-w-0"><p className="font-semibold text-gray-900">Paystack</p><p className="text-xs text-gray-600 truncate">Card & Mobile Money</p></div>
                     </label>
+                    */}
                     <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'moolre' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
+                      className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors border-gray-900 bg-gray-50"
                     >
                       <input
                         type="radio"
                         name="payment"
                         value="moolre"
-                        checked={paymentMethod === 'moolre'}
+                        checked={true}
                         onChange={() => setPaymentMethod('moolre')}
                         className="w-5 h-5 text-gray-900 flex-shrink-0"
                       />
                       <i className="ri-smartphone-line text-xl text-gray-600 flex-shrink-0"></i>
                       <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">Moolre</p>
-                        <p className="text-xs text-gray-600 truncate">Mobile Money</p>
+                        <p className="font-semibold text-gray-900">Mobile Money</p>
+                        <p className="text-xs text-gray-600 truncate">MTN, Vodafone, AirtelTigo</p>
                       </div>
                     </label>
-                    <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'stripe' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="stripe"
-                        checked={paymentMethod === 'stripe'}
-                        onChange={() => setPaymentMethod('stripe')}
-                        className="w-5 h-5 text-gray-900 flex-shrink-0"
-                      />
+                    {/* Stripe — temporarily disabled
+                    <label className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'stripe' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                      <input type="radio" name="payment" value="stripe" checked={paymentMethod === 'stripe'} onChange={() => setPaymentMethod('stripe')} className="w-5 h-5 text-gray-900 flex-shrink-0" />
                       <i className="ri-bank-card-2-line text-xl text-gray-600 flex-shrink-0"></i>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">Stripe</p>
-                        <p className="text-xs text-gray-600 truncate">Card (Visa, Mastercard)</p>
-                      </div>
+                      <div className="min-w-0"><p className="font-semibold text-gray-900">Stripe</p><p className="text-xs text-gray-600 truncate">Card (Visa, Mastercard)</p></div>
                     </label>
-                    <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="paypal"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={() => setPaymentMethod('paypal')}
-                        className="w-5 h-5 text-gray-900 flex-shrink-0"
-                      />
+                    */}
+                    {/* PayPal — temporarily disabled
+                    <label className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                      <input type="radio" name="payment" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="w-5 h-5 text-gray-900 flex-shrink-0" />
                       <i className="ri-paypal-line text-xl text-gray-600 flex-shrink-0"></i>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">PayPal</p>
-                        <p className="text-xs text-gray-600 truncate">PayPal balance</p>
-                      </div>
+                      <div className="min-w-0"><p className="font-semibold text-gray-900">PayPal</p><p className="text-xs text-gray-600 truncate">PayPal balance</p></div>
                     </label>
+                    */}
                   </div>
 
                   <div className="flex flex-col-reverse md:flex-row gap-4 mt-6">
@@ -760,7 +730,7 @@ export default function CheckoutPage() {
                           Processing...
                         </>
                       ) : (
-                        paymentMethod === 'paystack' ? 'Pay with Paystack' : paymentMethod === 'moolre' ? 'Pay with Moolre' : paymentMethod === 'stripe' ? 'Pay with Stripe' : 'Pay with PayPal'
+                        'Pay with Mobile Money'
                       )}
                     </button>
                   </div>
