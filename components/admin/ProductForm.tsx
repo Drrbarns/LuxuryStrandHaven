@@ -49,7 +49,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const DEFAULT_OPTION_GROUPS: OptionGroupDef[] = [
         { key: 'color', label: 'Color', type: 'color', defaultValues: [], generatesVariants: false },
         { key: 'lace_type', label: 'Lace Type', type: 'values', defaultValues: ['HD Lace', 'Transparent Lace'], generatesVariants: false },
-        { key: 'lace_length', label: 'Lace Length', type: 'values', defaultValues: ['2x6', '4x4', '5x5', '6x6', '7x7', '13x4', '13x6'], generatesVariants: false },
+        { key: 'lace_length', label: 'Lace Size', type: 'values', defaultValues: ['2x6', '4x4', '5x5', '6x6', '7x7', '13x4', '13x6'], generatesVariants: false },
         { key: 'length', label: 'Length', type: 'values', defaultValues: ['10"', '12"', '14"', '16"', '18"', '20"', '22"', '24"', '26"', '28"', '30"'], generatesVariants: true },
         { key: 'wig_size', label: 'Wig Size', type: 'values', defaultValues: ['Small', 'Medium', 'Large', 'Extra Large'], generatesVariants: false },
         { key: 'density', label: 'Density', type: 'values', defaultValues: ['250', '300', '350'], generatesVariants: false },

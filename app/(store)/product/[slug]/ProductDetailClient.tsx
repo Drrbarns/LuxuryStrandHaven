@@ -191,7 +191,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   // Map of default key -> label
   const defaultKeyToLabel: Record<string, string> = {
-    color: 'Color', lace_type: 'Lace Type', lace_length: 'Lace Length',
+    color: 'Color', lace_type: 'Lace Type', lace_length: 'Lace Size',
     length: 'Length', wig_size: 'Wig Size', density: 'Density',
   };
 

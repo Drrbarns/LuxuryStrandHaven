@@ -89,7 +89,10 @@ export default function CheckoutPage() {
 
   // Calculate Totals
   const subtotal = cartSubtotal;
-  const shippingCost = 0; // Delivery options temporarily disabled
+  const shippingCost = deliveryMethod === 'pickup' ? 0
+    : deliveryMethod === 'accra' ? 40
+    : deliveryMethod === 'outside-accra' ? 80
+    : 0; // doorstep: TBD, shown as "At a Cost" — no charge until confirmed
   const tax = 0; // No Tax
   const total = subtotal + shippingCost + tax;
 
@@ -780,6 +783,7 @@ export default function CheckoutPage() {
               shipping={shippingCost}
               tax={tax}
               total={total}
+              deliveryMethod={deliveryMethod}
             />
           </div>
         </div>
