@@ -249,7 +249,7 @@ export default function Home() {
             </Link>
           </AnimatedSection>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-3 md:grid-cols-3 gap-2 sm:gap-3 md:gap-6">
             {categories.map((category) => (
               <Link
                 href={`/shop?category=${category.slug}`}
