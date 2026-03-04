@@ -1,0 +1,37 @@
+{
+  "dependencies": {
+    "@react-google-maps/api": "^2.19.3",
+    "@supabase/supabase-js": "^2.91.1",
+    "framer-motion": "^12.34.0",
+    "next": "15.1.11",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^3.0.2",
+    "resend": "^6.9.1",
+    "stripe": "^20.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.0.0",
+    "postcss": "^8.5.5",
+    "sharp": "^0.33.5",
+    "tailwindcss": "^3.4.17",
+    "typescript": "5.9.3"
+  },
+  "name": "storefront",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "npx next dev -H 0.0.0.0 -p 3008",
+    "lint": "next lint",
+    "compress:images": "node scripts/compress-media.mjs",
+    "compress:video": "sh scripts/compress-video.sh"
+  },
+  "version": "0.1.0"
+}
