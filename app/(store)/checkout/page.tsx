@@ -41,6 +41,55 @@ export default function CheckoutPage() {
     'Ahafo', 'Bono', 'Bono East', 'North East', 'Savannah', 'Oti', 'Western North'
   ];
 
+  // Cities per country — dropdown when available, text input otherwise
+  const COUNTRY_CITIES: Record<string, string[]> = {
+    'Ghana': ['Accra','Kumasi','Tamale','Sekondi-Takoradi','Cape Coast','Tema','Madina','Koforidua','Sunyani','Ho','Wa','Bolgatanga','Techiman','Nkawkaw','Agona Swedru','Kasoa','Ashaiman','Winneba','Berekum','Kintampo','Mampong','Ejura','Nsawam','Asamankese','Dunkwa','Saltpond','Elmina','Prestea','Konongo','Offinso','Nkoranza','Yeji','Bawku','Navrongo','Gambaga','Damango','Yendi','Salaga','Kpando','Hohoe','Keta','Aflao','Obuasi','Teshie'],
+    'Nigeria': ['Lagos','Abuja','Kano','Ibadan','Kaduna','Port Harcourt','Benin City','Maiduguri','Zaria','Aba','Jos','Ilorin','Oyo','Enugu','Abeokuta','Onitsha','Warri','Sokoto','Calabar','Uyo','Asaba','Owerri','Akure','Bauchi','Makurdi','Minna','Awka','Nnewi','Umuahia','Yola','Gombe','Lafia','Lokoja','Ado Ekiti','Ikeja'],
+    'United Kingdom': ['London','Manchester','Birmingham','Leeds','Glasgow','Sheffield','Bradford','Edinburgh','Liverpool','Bristol','Cardiff','Coventry','Leicester','Nottingham','Newcastle upon Tyne','Southampton','Aberdeen','Brighton','Derby','Plymouth','Oxford','Cambridge','Exeter','York','Bath'],
+    'United States': ['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Jacksonville','Fort Worth','Columbus','Charlotte','Indianapolis','San Francisco','Seattle','Denver','Nashville','Atlanta','Miami','Minneapolis','Boston','Portland','Las Vegas','Detroit','Memphis','Baltimore','Washington DC','New Orleans','Milwaukee','Albuquerque','Tucson','Fresno','Sacramento','Kansas City','Omaha','Raleigh','Colorado Springs'],
+    'Canada': ['Toronto','Montreal','Calgary','Ottawa','Edmonton','Mississauga','Winnipeg','Vancouver','Brampton','Hamilton','Quebec City','Surrey','Laval','Halifax','Markham','Vaughan','Gatineau','Burnaby','Saskatoon','Kitchener','Windsor','Regina','Richmond','Richmond Hill'],
+    'Australia': ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Gold Coast','Newcastle','Canberra','Sunshine Coast','Wollongong','Geelong','Hobart','Townsville','Cairns','Darwin','Toowoomba','Ballarat','Bendigo','Launceston'],
+    'South Africa': ['Johannesburg','Cape Town','Durban','Pretoria','Port Elizabeth','Bloemfontein','East London','Pietermaritzburg','Boksburg','Soweto','Benoni','Vanderbijlpark','Germiston','Springs','Roodepoort','Kimberley','Polokwane','Rustenburg','Nelspruit','Witbank'],
+    'Kenya': ['Nairobi','Mombasa','Nakuru','Eldoret','Kisumu','Thika','Malindi','Kitale','Garissa','Nyeri','Machakos','Meru','Kakamega','Kericho','Embu'],
+    'Tanzania': ['Dar es Salaam','Mwanza','Arusha','Dodoma','Mbeya','Morogoro','Tanga','Zanzibar City','Kigoma','Iringa','Moshi','Tabora'],
+    'Ethiopia': ['Addis Ababa','Dire Dawa','Mekelle','Gondar','Adama','Hawassa','Bahir Dar','Dessie','Jimma','Jijiga'],
+    'Cameroon': ['Douala','Yaoundé','Bafoussam','Bamenda','Garoua','Maroua','Ngaoundéré','Bertoua','Loum','Kumba'],
+    "Côte d'Ivoire": ['Abidjan','Bouaké','Daloa','Yamoussoukro','San-Pédro','Korhogo','Man','Divo','Gagnoa','Abengourou'],
+    'Senegal': ['Dakar','Thiès','Kaolack','Ziguinchor','Saint-Louis','Rufisque','Touba','Louga','Tambacounda'],
+    'Uganda': ['Kampala','Gulu','Lira','Mbarara','Jinja','Bwizibwera','Mbale','Mukono','Kasese','Masaka'],
+    'Rwanda': ['Kigali','Butare','Gisenyi','Ruhengeri','Byumba','Cyangugu','Gitarama'],
+    'Zambia': ['Lusaka','Kitwe','Ndola','Kabwe','Chingola','Mufulira','Livingstone','Luanshya','Kasama'],
+    'Zimbabwe': ['Harare','Bulawayo','Chitungwiza','Mutare','Gweru','Kwekwe','Kadoma','Masvingo','Chinhoyi','Norton'],
+    'Germany': ['Berlin','Hamburg','Munich','Cologne','Frankfurt','Stuttgart','Düsseldorf','Leipzig','Dortmund','Essen','Bremen','Dresden','Hanover','Nuremberg','Duisburg','Bochum','Wuppertal','Bielefeld','Bonn','Münster'],
+    'France': ['Paris','Marseille','Lyon','Toulouse','Nice','Nantes','Strasbourg','Montpellier','Bordeaux','Lille','Rennes','Reims','Toulon','Le Havre','Grenoble','Dijon','Nîmes','Angers'],
+    'India': ['Mumbai','Delhi','Bangalore','Hyderabad','Ahmedabad','Chennai','Kolkata','Surat','Pune','Jaipur','Lucknow','Kanpur','Nagpur','Indore','Thane','Bhopal','Visakhapatnam','Patna','Vadodara','Ghaziabad','Agra','Nashik','Meerut','Faridabad'],
+    'China': ['Shanghai','Beijing','Guangzhou','Shenzhen','Chengdu','Tianjin','Wuhan','Xi\'an','Hangzhou','Nanjing','Chongqing','Suzhou','Qingdao','Zhengzhou','Dongguan','Foshan','Shenyang','Harbin','Kunming','Changsha'],
+    'United Arab Emirates': ['Dubai','Abu Dhabi','Sharjah','Ajman','Ras Al Khaimah','Fujairah','Al Ain'],
+    'Saudi Arabia': ['Riyadh','Jeddah','Mecca','Medina','Dammam','Khobar','Tabuk','Buraidah','Abha','Najran','Jizan'],
+    'Italy': ['Rome','Milan','Naples','Turin','Palermo','Genoa','Bologna','Florence','Bari','Catania','Venice','Verona','Messina','Padua','Trieste'],
+    'Spain': ['Madrid','Barcelona','Valencia','Seville','Zaragoza','Málaga','Murcia','Palma','Las Palmas','Bilbao','Alicante','Córdoba','Valladolid','Vigo','Gijón'],
+    'Netherlands': ['Amsterdam','Rotterdam','The Hague','Utrecht','Eindhoven','Tilburg','Groningen','Almere','Breda','Nijmegen'],
+    'Belgium': ['Brussels','Antwerp','Ghent','Charleroi','Liège','Bruges','Namur','Leuven','Mons','Aalst'],
+    'Portugal': ['Lisbon','Porto','Vila Nova de Gaia','Braga','Amadora','Setúbal','Coimbra','Funchal','Almada','Aveiro'],
+    'Sweden': ['Stockholm','Gothenburg','Malmö','Uppsala','Västerås','Örebro','Linköping','Helsingborg','Jönköping','Norrköping'],
+    'Norway': ['Oslo','Bergen','Trondheim','Stavanger','Drammen','Fredrikstad','Kristiansand','Sandnes','Tromsø','Sarpsborg'],
+    'Denmark': ['Copenhagen','Aarhus','Odense','Aalborg','Frederiksberg','Esbjerg','Randers','Kolding','Horsens','Vejle'],
+    'Ireland': ['Dublin','Cork','Limerick','Galway','Waterford','Drogheda','Dundalk','Swords','Bray','Navan'],
+    'New Zealand': ['Auckland','Wellington','Christchurch','Hamilton','Tauranga','Napier-Hastings','Dunedin','Palmerston North','Nelson','Rotorua'],
+    'Singapore': ['Singapore'],
+    'Malaysia': ['Kuala Lumpur','George Town','Ipoh','Shah Alam','Petaling Jaya','Johor Bahru','Kota Kinabalu','Kuching','Subang Jaya','Selayang'],
+    'Japan': ['Tokyo','Yokohama','Osaka','Nagoya','Sapporo','Fukuoka','Kobe','Kawasaki','Kyoto','Saitama','Hiroshima','Sendai','Chiba','Kitakyushu','Sakai'],
+    'South Korea': ['Seoul','Busan','Incheon','Daegu','Daejeon','Gwangju','Suwon','Ulsan','Changwon','Goyang'],
+    'Brazil': ['São Paulo','Rio de Janeiro','Brasília','Salvador','Fortaleza','Belo Horizonte','Manaus','Curitiba','Recife','Porto Alegre','Belém','Goiânia','Guarulhos','Campinas','São Luís'],
+    'Mexico': ['Mexico City','Guadalajara','Monterrey','Puebla','Tijuana','León','Juárez','Torreón','Querétaro','San Luis Potosí','Mérida','Mexicali','Aguascalientes','Cali','Hermosillo'],
+    'Argentina': ['Buenos Aires','Córdoba','Rosario','Mendoza','Tucumán','La Plata','Mar del Plata','Salta','Santa Fe','San Juan'],
+    'Pakistan': ['Karachi','Lahore','Faisalabad','Rawalpindi','Islamabad','Gujranwala','Peshawar','Multan','Quetta','Hyderabad'],
+    'Bangladesh': ['Dhaka','Chittagong','Sylhet','Rajshahi','Khulna','Comilla','Mymensingh','Barisal','Rangpur','Narayanganj'],
+    'Egypt': ['Cairo','Alexandria','Giza','Shubra El Kheima','Port Said','Suez','Luxor','Asyut','Ismaïlia','Faiyum'],
+    'Morocco': ['Casablanca','Rabat','Fez','Marrakech','Agadir','Tangier','Meknès','Oujda','Kenitra','Tetouan'],
+    'Turkey': ['Istanbul','Ankara','Izmir','Bursa','Adana','Gaziantep','Konya','Antalya','Kayseri','Mersin'],
+  };
+
   // All countries (Ghana first)
   const countries = [
     'Ghana',
@@ -538,7 +587,7 @@ export default function CheckoutPage() {
                       <label className="block text-sm font-semibold text-gray-900 mb-2">Country *</label>
                       <select
                         value={shippingData.country}
-                        onChange={(e) => setShippingData({ ...shippingData, country: e.target.value, region: '' })}
+                        onChange={(e) => setShippingData({ ...shippingData, country: e.target.value, region: '', city: '' })}
                         className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
                       >
                         <option value="">Select Country</option>
@@ -567,13 +616,26 @@ export default function CheckoutPage() {
                       {/* City */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">City *</label>
-                        <input
-                          type="text"
-                          value={shippingData.city}
-                          onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                          placeholder={shippingData.country === 'Ghana' ? 'e.g. Accra' : 'Enter your city'}
-                        />
+                        {COUNTRY_CITIES[shippingData.country] ? (
+                          <select
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                          >
+                            <option value="">Select City</option>
+                            {COUNTRY_CITIES[shippingData.country].map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="Enter your city"
+                          />
+                        )}
                         {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
                       </div>
 
