@@ -28,6 +28,7 @@ export default function CheckoutPage() {
     lastName: '',
     email: '',
     phone: '',
+    country: 'Ghana',
     address: '',
     city: '',
     region: ''
@@ -35,23 +36,45 @@ export default function CheckoutPage() {
 
   // Ghana Regions for dropdown
   const ghanaRegions = [
-    'Greater Accra',
-    'Ashanti',
-    'Western',
-    'Central',
-    'Eastern',
-    'Northern',
-    'Volta',
-    'Upper East',
-    'Upper West',
-    'Brong-Ahafo',
-    'Ahafo',
-    'Bono',
-    'Bono East',
-    'North East',
-    'Savannah',
-    'Oti',
-    'Western North'
+    'Greater Accra', 'Ashanti', 'Western', 'Central', 'Eastern',
+    'Northern', 'Volta', 'Upper East', 'Upper West', 'Brong-Ahafo',
+    'Ahafo', 'Bono', 'Bono East', 'North East', 'Savannah', 'Oti', 'Western North'
+  ];
+
+  // All countries list (Ghana first)
+  const countries = [
+    'Ghana',
+    'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
+    'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain',
+    'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan',
+    'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria',
+    'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cambodia', 'Cameroon', 'Canada',
+    'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros',
+    'Congo (Brazzaville)', 'Congo (Kinshasa)', 'Costa Rica', "Côte d'Ivoire", 'Croatia',
+    'Cuba', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominica',
+    'Dominican Republic', 'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea',
+    'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia', 'Fiji', 'Finland', 'France',
+    'Gabon', 'Gambia', 'Georgia', 'Germany', 'Greece', 'Grenada', 'Guatemala',
+    'Guinea', 'Guinea-Bissau', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland',
+    'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy', 'Jamaica',
+    'Japan', 'Jordan', 'Kazakhstan', 'Kenya', 'Kiribati', 'Kuwait', 'Kyrgyzstan',
+    'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein',
+    'Lithuania', 'Luxembourg', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali',
+    'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia',
+    'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar',
+    'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger',
+    'Nigeria', 'North Korea', 'North Macedonia', 'Norway', 'Oman', 'Pakistan', 'Palau',
+    'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines',
+    'Poland', 'Portugal', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'Saint Kitts and Nevis',
+    'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino',
+    'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles',
+    'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia',
+    'South Africa', 'South Korea', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan',
+    'Suriname', 'Sweden', 'Switzerland', 'Syria', 'Taiwan', 'Tajikistan', 'Tanzania',
+    'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia',
+    'Turkey', 'Turkmenistan', 'Tuvalu', 'Uganda', 'Ukraine', 'United Arab Emirates',
+    'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan', 'Vanuatu', 'Vatican City',
+    'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
   ];
 
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
@@ -100,9 +123,9 @@ export default function CheckoutPage() {
     if (!shippingData.email) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(shippingData.email)) newErrors.email = 'Invalid email';
     if (!shippingData.phone) newErrors.phone = 'Phone is required';
-    if (!shippingData.address) newErrors.address = 'Address is required';
+    if (!shippingData.country) newErrors.country = 'Country is required';
     if (!shippingData.city) newErrors.city = 'City is required';
-    if (!shippingData.region) newErrors.region = 'Region is required';
+    if (shippingData.country === 'Ghana' && !shippingData.region) newErrors.region = 'Region is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -477,8 +500,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingData.firstName}
                           onChange={(e) => setShippingData({ ...shippingData, firstName: e.target.value })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.firstName ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.firstName ? 'border-red-500' : 'border-gray-300'}`}
                           placeholder="John"
                         />
                         {errors.firstName && <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>}
@@ -491,8 +513,7 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingData.lastName}
                           onChange={(e) => setShippingData({ ...shippingData, lastName: e.target.value })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.lastName ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.lastName ? 'border-red-500' : 'border-gray-300'}`}
                           placeholder="Doe"
                         />
                         {errors.lastName && <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>}
@@ -506,10 +527,9 @@ export default function CheckoutPage() {
                       <input
                         type="email"
                         value={shippingData.email}
-                        readOnly={!!user} // Make read-only if logged in (optional, but safer)
+                        readOnly={!!user}
                         onChange={(e) => setShippingData({ ...shippingData, email: e.target.value })}
-                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.email ? 'border-red-500' : 'border-gray-300'
-                          } ${user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.email ? 'border-red-500' : 'border-gray-300'} ${user ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                         placeholder="you@example.com"
                       />
                       {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
@@ -523,29 +543,46 @@ export default function CheckoutPage() {
                         type="tel"
                         value={shippingData.phone}
                         onChange={(e) => setShippingData({ ...shippingData, phone: e.target.value })}
-                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.phone ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
                         placeholder="+233 XX XXX XXXX"
                       />
                       {errors.phone && <p className="text-sm text-red-600 mt-1">{errors.phone}</p>}
                     </div>
 
+                    {/* Country */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Street Address *
+                        Country *
+                      </label>
+                      <select
+                        value={shippingData.country}
+                        onChange={(e) => setShippingData({ ...shippingData, country: e.target.value, region: '' })}
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.country ? 'border-red-500' : 'border-gray-300'}`}
+                      >
+                        <option value="">Select Country</option>
+                        {countries.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                      {errors.country && <p className="text-sm text-red-600 mt-1">{errors.country}</p>}
+                    </div>
+
+                    {/* Street Address (optional) */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">
+                        Street Address <span className="text-gray-400 font-normal">(optional)</span>
                       </label>
                       <input
                         type="text"
                         value={shippingData.address}
                         onChange={(e) => setShippingData({ ...shippingData, address: e.target.value })}
-                        className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.address ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                         placeholder="House number and street name"
                       />
-                      {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* City */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-900 mb-2">
                           City *
@@ -554,28 +591,45 @@ export default function CheckoutPage() {
                           type="text"
                           value={shippingData.city}
                           onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                          placeholder="Accra"
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                          placeholder={shippingData.country === 'Ghana' ? 'e.g. Accra' : 'Enter your city'}
                         />
                         {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
                       </div>
+
+                      {/* Region (Ghana) or State/Province (international) */}
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          Region *
-                        </label>
-                        <select
-                          value={shippingData.region}
-                          onChange={(e) => setShippingData({ ...shippingData, region: e.target.value })}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.region ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                        >
-                          <option value="">Select Region</option>
-                          {ghanaRegions.map((region) => (
-                            <option key={region} value={region}>{region}</option>
-                          ))}
-                        </select>
-                        {errors.region && <p className="text-sm text-red-600 mt-1">{errors.region}</p>}
+                        {shippingData.country === 'Ghana' ? (
+                          <>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Region *
+                            </label>
+                            <select
+                              value={shippingData.region}
+                              onChange={(e) => setShippingData({ ...shippingData, region: e.target.value })}
+                              className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.region ? 'border-red-500' : 'border-gray-300'}`}
+                            >
+                              <option value="">Select Region</option>
+                              {ghanaRegions.map((r) => (
+                                <option key={r} value={r}>{r}</option>
+                              ))}
+                            </select>
+                            {errors.region && <p className="text-sm text-red-600 mt-1">{errors.region}</p>}
+                          </>
+                        ) : (
+                          <>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              State / Province <span className="text-gray-400 font-normal">(optional)</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={shippingData.region}
+                              onChange={(e) => setShippingData({ ...shippingData, region: e.target.value })}
+                              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                              placeholder="State or province"
+                            />
+                          </>
+                        )}
                       </div>
                     </div>
 
