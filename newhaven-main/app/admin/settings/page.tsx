@@ -60,6 +60,8 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+    const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
+    const [maintenanceToggling, setMaintenanceToggling] = useState(false);
 
     // Load settings from DB
     const fetchSettings = useCallback(async () => {
@@ -71,6 +73,7 @@ export default function SettingsPage() {
                 map[row.key] = typeof row.value === 'string' ? row.value : JSON.stringify(row.value);
             });
             setSettings(map);
+            setMaintenanceEnabled(map['maintenance_mode'] === 'true');
         } catch (err) {
             console.error('Failed to load settings:', err);
         } finally {
@@ -108,6 +111,25 @@ export default function SettingsPage() {
             alert('Failed to save settings. Please try again.');
         } finally {
             setSaving(false);
+        }
+    };
+
+    // Instantly toggle maintenance mode (no need to hit Save Changes)
+    const handleToggleMaintenance = async () => {
+        const newValue = !maintenanceEnabled;
+        setMaintenanceToggling(true);
+        try {
+            await supabase.from('store_settings').upsert(
+                { key: 'maintenance_mode', value: newValue ? 'true' : 'false', updated_at: new Date().toISOString() },
+                { onConflict: 'key' }
+            );
+            setMaintenanceEnabled(newValue);
+            setSettings(prev => ({ ...prev, maintenance_mode: newValue ? 'true' : 'false' }));
+        } catch (err) {
+            console.error('Failed to toggle maintenance mode:', err);
+            alert('Failed to update maintenance mode. Please try again.');
+        } finally {
+            setMaintenanceToggling(false);
         }
     };
 
@@ -233,6 +255,51 @@ export default function SettingsPage() {
             case 'general':
                 return (
                     <div className="space-y-6">
+                        {/* ── Maintenance Mode ── */}
+                        <div className={`rounded-xl border-2 p-5 transition-colors ${maintenanceEnabled ? 'bg-amber-50 border-amber-400' : 'bg-green-50 border-green-300'}`}>
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-start gap-4">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${maintenanceEnabled ? 'bg-amber-100' : 'bg-green-100'}`}>
+                                        <i className={`text-2xl ${maintenanceEnabled ? 'ri-tools-fill text-amber-600' : 'ri-store-2-fill text-green-600'}`}></i>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <h3 className="text-base font-bold text-gray-900">Store Status</h3>
+                                            <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${maintenanceEnabled ? 'bg-amber-200 text-amber-800' : 'bg-green-200 text-green-800'}`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${maintenanceEnabled ? 'bg-amber-500' : 'bg-green-500 animate-pulse'}`}></span>
+                                                {maintenanceEnabled ? 'MAINTENANCE' : 'LIVE'}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-gray-600">
+                                            {maintenanceEnabled
+                                                ? 'Your store is offline. Customers see the maintenance page. The admin panel remains fully accessible.'
+                                                : 'Your store is live and visible to all customers. Toggle to take it offline for updates.'}
+                                        </p>
+                                    </div>
+                                </div>
+                                {/* Toggle switch */}
+                                <button
+                                    onClick={handleToggleMaintenance}
+                                    disabled={maintenanceToggling}
+                                    className={`relative flex-shrink-0 w-14 h-7 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${maintenanceEnabled ? 'bg-amber-500 focus:ring-amber-400' : 'bg-green-500 focus:ring-green-400'} ${maintenanceToggling ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                                    title={maintenanceEnabled ? 'Click to bring store back online' : 'Click to enable maintenance mode'}
+                                >
+                                    <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 flex items-center justify-center ${maintenanceEnabled ? 'translate-x-7' : 'translate-x-0'}`}>
+                                        {maintenanceToggling
+                                            ? <span className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></span>
+                                            : <i className={`text-xs ${maintenanceEnabled ? 'ri-tools-line text-amber-500' : 'ri-store-2-line text-green-500'}`}></i>
+                                        }
+                                    </span>
+                                </button>
+                            </div>
+                            {maintenanceEnabled && (
+                                <div className="mt-4 pt-4 border-t border-amber-200 flex items-center gap-2 text-sm text-amber-800">
+                                    <i className="ri-information-line text-base"></i>
+                                    <span>Toggle off to bring the store back online instantly. No save needed — changes apply immediately.</span>
+                                </div>
+                            )}
+                        </div>
+
                         <SectionCard title="Store Information" icon="ri-store-2-line" description="Basic details about your store">
                             <div className="grid md:grid-cols-2 gap-5">
                                 <FieldGroup label="Store Name"><input type="text" value={val('site_name')} onChange={e => set('site_name', e.target.value)} className={inputClass} /></FieldGroup>
