@@ -233,6 +233,12 @@ export default function SettingsPage() {
             case 'general':
                 return (
                     <div className="space-y-6">
+                        <SectionCard title="Maintenance Mode" icon="ri-tools-line" description="When enabled, the storefront shows a maintenance page. Use the sidebar toggle to enable/disable. Admin always remains accessible.">
+                            <FieldGroup label="Countdown Duration (minutes)" description="How long the countdown displays on the maintenance page (default: 30)">
+                                <input type="number" min="1" max="1440" value={val('maintenance_countdown_minutes') || '30'} onChange={e => set('maintenance_countdown_minutes', e.target.value || '30')} className={inputClass} placeholder="30" />
+                            </FieldGroup>
+                        </SectionCard>
+
                         <SectionCard title="Store Information" icon="ri-store-2-line" description="Basic details about your store">
                             <div className="grid md:grid-cols-2 gap-5">
                                 <FieldGroup label="Store Name"><input type="text" value={val('site_name')} onChange={e => set('site_name', e.target.value)} className={inputClass} /></FieldGroup>
