@@ -259,15 +259,25 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         { id: 'seo', label: 'SEO', icon: 'ri-search-line' }
     ];
 
-    // Fetch categories on mount
     useEffect(() => {
         async function fetchCategories() {
-            const { data } = await supabase.from('categories').select('id, name').eq('status', 'active');
+            const { data } = await supabase.from('categories').select('id, name, parent_id').eq('status', 'active').order('name');
             if (data) {
-                setCategories(data);
-                if (data.length > 0 && !categoryId) {
-                    setCategoryId(data[0].id);
-                }
+                type CatNode = { id: string; name: string; parent_id: string | null; children: CatNode[] };
+                const map = new Map<string, CatNode>();
+                data.forEach(c => map.set(c.id, { ...c, children: [] }));
+                const roots: CatNode[] = [];
+                map.forEach(node => {
+                    if (node.parent_id && map.has(node.parent_id)) map.get(node.parent_id)!.children.push(node);
+                    else roots.push(node);
+                });
+                const sort = (nodes: CatNode[]) => { nodes.sort((a, b) => a.name.localeCompare(b.name)); nodes.forEach(n => sort(n.children)); };
+                sort(roots);
+                const flat: { id: string; name: string; depth: number }[] = [];
+                const walk = (nodes: CatNode[], depth: number) => { nodes.forEach(n => { flat.push({ id: n.id, name: n.name, depth }); walk(n.children, depth + 1); }); };
+                walk(roots, 0);
+                setCategories(flat);
+                if (flat.length > 0 && !categoryId) setCategoryId(flat[0].id);
             }
         }
         fetchCategories();
@@ -557,8 +567,10 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     >
                                         {categories.length === 0 && <option value="">Loading categories...</option>}
                                         {categories.length > 0 && <option value="">Select a category</option>}
-                                        {categories.map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        {categories.map((cat: any) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {'—'.repeat(cat.depth || 0)}{(cat.depth || 0) > 0 ? ' ' : ''}{cat.name}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>
