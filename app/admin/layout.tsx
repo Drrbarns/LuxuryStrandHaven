@@ -226,6 +226,11 @@ export default function AdminLayout({
     },
 
     {
+      title: 'Academia',
+      icon: 'ri-graduation-cap-line',
+      path: '/admin/academia'
+    },
+    {
       title: 'Blog',
       icon: 'ri-article-line',
       path: '/admin/blog',

@@ -1,36 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-
-const COURSES = [
-  {
-    icon: '👑',
-    title: 'Wig Making Masterclass',
-    desc: 'Learn to construct flawless wigs from scratch — cap construction, wefting, styling and finishing.',
-  },
-  {
-    icon: '✂️',
-    title: 'HD Lace Techniques',
-    desc: 'Master HD and transparent lace application, bleaching knots, baby hair and seamless installs.',
-  },
-  {
-    icon: '💼',
-    title: 'Hair Business Bootcamp',
-    desc: 'Build a profitable hair brand — sourcing, pricing, branding, social media and sales strategy.',
-  },
-  {
-    icon: '🎨',
-    title: 'Color & Styling',
-    desc: 'Advanced coloring, highlights, toning and creative styling techniques for human hair.',
-  },
-];
+import { supabase } from '@/lib/supabase';
 
 export default function AcademiaPage() {
+  const [courses, setCourses] = useState<{ id: string; title: string; description: string | null; icon: string | null; price: number; youtube_url: string | null }[]>([]);
+  const [coursesLoading, setCoursesLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const { data, error } = await supabase
+          .from('academia_courses')
+          .select('id, title, description, icon, price, youtube_url')
+          .eq('status', 'active')
+          .order('sort_order', { ascending: true })
+          .order('created_at', { ascending: false });
+        if (!error) setCourses(data ?? []);
+      } catch {
+        // keep default empty
+      } finally {
+        setCoursesLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   function handleNotify(e: React.FormEvent) {
     e.preventDefault();
@@ -108,18 +107,44 @@ export default function AcademiaPage() {
           transition={{ delay: 0.45, duration: 0.7 }}
           className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mb-14"
         >
-          {COURSES.map((course) => (
-            <div
-              key={course.title}
-              className="text-left p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm hover:border-amber-500/40 hover:bg-white/8 transition-all group"
-            >
-              <span className="text-3xl mb-3 block">{course.icon}</span>
-              <h3 className="font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors">
-                {course.title}
-              </h3>
-              <p className="text-white/50 text-sm leading-relaxed">{course.desc}</p>
-            </div>
-          ))}
+          {coursesLoading ? (
+            <div className="col-span-2 py-12 text-white/50">Loading courses…</div>
+          ) : courses.length === 0 ? (
+            <div className="col-span-2 py-12 text-white/50">Courses coming soon. Check back later.</div>
+          ) : (
+            courses.map((course) => (
+              <div
+                key={course.id}
+                className="text-left p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm hover:border-amber-500/40 hover:bg-white/8 transition-all group"
+              >
+                <span className="text-3xl mb-3 block">{course.icon || '📚'}</span>
+                <h3 className="font-semibold text-white mb-2 group-hover:text-amber-400 transition-colors">
+                  {course.title}
+                </h3>
+                <p className="text-white/50 text-sm leading-relaxed mb-4">
+                  {course.description || 'Online course — watch and learn.'}
+                </p>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <span className="text-amber-400 font-bold">
+                    {course.price != null && course.price > 0 ? `GH₵ ${Number(course.price).toFixed(2)}` : 'Free'}
+                  </span>
+                  {course.youtube_url ? (
+                    <a
+                      href={course.youtube_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-2 rounded-full text-sm transition-all"
+                    >
+                      <i className="ri-youtube-line text-lg" />
+                      Watch on YouTube
+                    </a>
+                  ) : (
+                    <span className="text-white/40 text-sm">Link coming soon</span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </motion.div>
 
         {/* Notify form */}

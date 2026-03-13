@@ -61,15 +61,26 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (categoryId: string) => {
-    if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
-      try {
-        const { error } = await supabase.from('categories').delete().eq('id', categoryId);
-        if (error) throw error;
-        setCategories(categories.filter(c => c.id !== categoryId));
-        alert('Category deleted successfully');
-      } catch (err: any) {
-        alert('Error deleting: ' + err.message);
+    const category = categories.find(c => c.id === categoryId);
+    const childCount = categories.filter(c => c.parent_id === categoryId).length;
+    const message = childCount > 0
+      ? `"${category?.name}" has ${childCount} subcategory(ies). They will be moved to the top level (no parent), then this category will be deleted. Continue?`
+      : 'Are you sure you want to delete this category? This action cannot be undone.';
+    if (!confirm(message)) return;
+    try {
+      if (childCount > 0) {
+        const { error: unlinkError } = await supabase
+          .from('categories')
+          .update({ parent_id: null })
+          .eq('parent_id', categoryId);
+        if (unlinkError) throw unlinkError;
       }
+      const { error } = await supabase.from('categories').delete().eq('id', categoryId);
+      if (error) throw error;
+      setCategories(categories.filter(c => c.id !== categoryId));
+      alert('Category deleted successfully');
+    } catch (err: any) {
+      alert('Error deleting: ' + (err.message || 'Unknown error'));
     }
   };
 
