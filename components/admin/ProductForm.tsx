@@ -335,19 +335,37 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
     // Variant helpers removed — variants are now auto-generated from selectedColors × selectedSizes
 
+    const ensureUniqueSlug = async (baseSlug: string, currentProductId?: string): Promise<string> => {
+        let slug = baseSlug;
+        let attempt = 0;
+        while (true) {
+            let query = supabase.from('products').select('id').eq('slug', slug).limit(1);
+            if (currentProductId) query = query.neq('id', currentProductId);
+            const { data } = await query;
+            if (!data || data.length === 0) return slug;
+            attempt++;
+            const suffix = attempt === 1
+                ? Date.now().toString(36).slice(-4)
+                : Date.now().toString(36).slice(-4) + Math.random().toString(36).slice(2, 4);
+            slug = `${baseSlug}-${suffix}`;
+        }
+    };
+
     const handleSubmit = async () => {
         try {
             setLoading(true);
 
-            // If product has variants, auto-sync main stock = sum of variant stocks
             const hasVariants = variants.length > 0;
             const variantStockTotal = hasVariants
                 ? variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)
                 : parseInt(stock) || 0;
 
+            const rawSlug = urlSlug || productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            const uniqueSlug = await ensureUniqueSlug(rawSlug, isEditMode ? initialData?.id : undefined);
+
             const productData = {
                 name: productName,
-                slug: urlSlug || productName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
+                slug: uniqueSlug,
                 description,
                 category_id: categoryId || null,
                 price: parseFloat(price) || 0,
