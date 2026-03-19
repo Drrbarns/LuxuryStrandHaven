@@ -69,13 +69,33 @@ function ShopContent() {
         const { data, count, error } = await cachedQuery<{ data: any; count: any; error: any }>(
           cacheKey,
           async () => {
+            // Build category filter: collect all target category IDs (selected + children)
+            let extraProductIds: string[] = [];
+            let targetCategoryIds: string[] = [];
+
+            if (selectedCategory !== 'all') {
+              const categoryObj = categories.find(c => c.slug === selectedCategory);
+              if (categoryObj) {
+                const childIds = categories
+                  .filter(c => c.parent_id === categoryObj.id)
+                  .map(c => c.id);
+                targetCategoryIds = [categoryObj.id, ...childIds];
+
+                const { data: linkRows } = await supabase
+                  .from('product_category_links')
+                  .select('product_id')
+                  .in('category_id', targetCategoryIds);
+                extraProductIds = (linkRows || []).map((r: any) => r.product_id);
+              }
+            }
+
             let query = supabase
               .from('products')
               .select(`
                 *,
-                categories!inner(name, slug),
+                categories(name, slug),
                 product_images!product_id(url, position),
-                product_variants(id, name, price, quantity, option1, option2, image_url)
+                product_variants(id, name, price, compare_at_price, quantity, option1, option2, image_url)
               `, { count: 'exact' })
               .order('position', { foreignTable: 'product_images', ascending: true });
 
@@ -84,19 +104,14 @@ function ShopContent() {
               query = query.ilike('name', `%${search}%`);
             }
 
-            // Category Filter with Subcategories
+            // Category Filter: primary category OR extra linked categories
             if (selectedCategory !== 'all') {
-              const categoryObj = categories.find(c => c.slug === selectedCategory);
-
-              if (categoryObj) {
-                const targetSlugs = [selectedCategory];
-                const childSlugs = categories
-                  .filter(c => c.parent_id === categoryObj.id)
-                  .map(c => c.slug);
-                targetSlugs.push(...childSlugs);
-                query = query.in('categories.slug', targetSlugs);
-              } else {
-                query = query.eq('categories.slug', selectedCategory);
+              if (extraProductIds.length > 0 && targetCategoryIds.length > 0) {
+                query = query.or(
+                  `category_id.in.(${targetCategoryIds.join(',')}),id.in.(${extraProductIds.join(',')})`
+                );
+              } else if (targetCategoryIds.length > 0) {
+                query = query.in('category_id', targetCategoryIds);
               }
             }
 

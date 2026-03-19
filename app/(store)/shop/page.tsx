@@ -69,14 +69,34 @@ function ShopContent() {
         const { data, count, error } = await cachedQuery<{ data: any; count: any; error: any }>(
           cacheKey,
           async () => {
+            // Build category filter: collect all target category IDs (selected + children)
+            let extraProductIds: string[] = [];
+            let targetCategoryIds: string[] = [];
+
+            if (selectedCategory !== 'all') {
+              const categoryObj = categories.find(c => c.slug === selectedCategory);
+              if (categoryObj) {
+                const childIds = categories
+                  .filter(c => c.parent_id === categoryObj.id)
+                  .map(c => c.id);
+                targetCategoryIds = [categoryObj.id, ...childIds];
+
+                // Fetch product IDs linked to these categories via extra-category links
+                const { data: linkRows } = await supabase
+                  .from('product_category_links')
+                  .select('product_id')
+                  .in('category_id', targetCategoryIds);
+                extraProductIds = (linkRows || []).map((r: any) => r.product_id);
+              }
+            }
+
             let query = supabase
               .from('products')
               .select(`
                 *,
-                categories!inner(name, slug),
+                categories(name, slug),
                 product_images!product_id(url, position),
-                product_variants(id, name, price, quantity, option1, option2, image_url),
-                product_category_links:product_category_links(category_id)
+                product_variants(id, name, price, compare_at_price, quantity, option1, option2, image_url)
               `, { count: 'exact' })
               .order('position', { foreignTable: 'product_images', ascending: true });
 
@@ -85,23 +105,15 @@ function ShopContent() {
               query = query.ilike('name', `%${search}%`);
             }
 
-            // Category Filter with Subcategories + extra category links
+            // Category Filter: primary category OR extra linked categories
             if (selectedCategory !== 'all') {
-              const categoryObj = categories.find(c => c.slug === selectedCategory);
-
-              if (categoryObj) {
-                const targetSlugs = [selectedCategory];
-                const childSlugs = categories
-                  .filter(c => c.parent_id === categoryObj.id)
-                  .map(c => c.slug);
-                targetSlugs.push(...childSlugs);
-                // match either primary category slug OR any linked category
+              if (extraProductIds.length > 0 && targetCategoryIds.length > 0) {
+                // products whose primary category is in targets OR whose id is in extra links
                 query = query.or(
-                  `categories.slug.in.(${targetSlugs.join(',')}),
-                   product_category_links.category_id.eq.${categoryObj.id}`
+                  `category_id.in.(${targetCategoryIds.join(',')}),id.in.(${extraProductIds.join(',')})`
                 );
-              } else {
-                query = query.eq('categories.slug', selectedCategory);
+              } else if (targetCategoryIds.length > 0) {
+                query = query.in('category_id', targetCategoryIds);
               }
             }
 
