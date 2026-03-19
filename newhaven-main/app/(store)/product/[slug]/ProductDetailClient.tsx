@@ -53,7 +53,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               .from('products')
               .select(`
                 *,
-                categories(name),
+                categories!category_id(name),
                 product_variants(*),
                 product_images(url, position, alt_text)
               `);

@@ -56,7 +56,7 @@ export default function AnalyticsPage() {
         .from('order_items')
         .select(`
             *,
-            products (name, categories(name))
+            products (name, categories!category_id(name))
          `)
         .gte('created_at', isoStart); // Assuming order_items has created_at or join orders.. 
       // Actually order_items usually doesn't have created_at directly in some schemas, 
@@ -73,7 +73,7 @@ export default function AnalyticsPage() {
             unit_price, 
             total_price,
             product_id,
-            products!inner(name, category_id, categories(name))
+            products!inner(name, category_id, categories!category_id(name))
           `)
           .in('order_id', orderIds);
 

@@ -28,7 +28,7 @@ export default function InventoryManagementPage() {
           sku,
           price,
           quantity,
-          categories(name)
+          categories!category_id(name)
         `)
         .order('name');
 

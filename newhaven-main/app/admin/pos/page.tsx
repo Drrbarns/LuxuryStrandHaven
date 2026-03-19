@@ -72,7 +72,7 @@ export default function POSPage() {
                 .from('products')
                 .select(`
           id, name, price, quantity, sku,
-          categories(name),
+          categories!category_id(name),
           product_images(url)
         `)
                 .order('name');

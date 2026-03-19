@@ -94,10 +94,11 @@ function ShopContent() {
               .from('products')
               .select(`
                 *,
-                categories(name, slug),
+                categories!category_id(name, slug),
                 product_images!product_id(url, position),
-                product_variants(id, name, price, compare_at_price, quantity, option1, option2, image_url)
+                product_variants!product_id(id, name, price, compare_at_price, quantity, option1, option2, image_url)
               `, { count: 'exact' })
+              .eq('status', 'active')
               .order('position', { foreignTable: 'product_images', ascending: true });
 
             // Search
