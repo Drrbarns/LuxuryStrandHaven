@@ -17,6 +17,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
     const [productName, setProductName] = useState(initialData?.name || '');
     const [categoryId, setCategoryId] = useState(initialData?.category_id || '');
+    const [extraCategoryIds, setExtraCategoryIds] = useState<string[]>([]);
     const [price, setPrice] = useState(initialData?.price || '');
     const [comparePrice, setComparePrice] = useState(initialData?.compare_at_price || '');
     const [sku, setSku] = useState(initialData?.sku || '');
@@ -263,11 +264,24 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     // Fetch categories on mount
     useEffect(() => {
         async function fetchCategories() {
-            const { data } = await supabase.from('categories').select('id, name').eq('status', 'active');
+            const { data } = await supabase.from('categories').select('id, name, parent_id').eq('status', 'active').order('name');
             if (data) {
-                setCategories(data);
-                if (data.length > 0 && !categoryId) {
-                    setCategoryId(data[0].id);
+                type CatNode = { id: string; name: string; parent_id: string | null; children: CatNode[] };
+                const map = new Map<string, CatNode>();
+                data.forEach(c => map.set(c.id, { ...c, children: [] }));
+                const roots: CatNode[] = [];
+                map.forEach(node => {
+                    if (node.parent_id && map.has(node.parent_id)) map.get(node.parent_id)!.children.push(node);
+                    else roots.push(node);
+                });
+                const sort = (nodes: CatNode[]) => { nodes.sort((a, b) => a.name.localeCompare(b.name)); nodes.forEach(n => sort(n.children)); };
+                sort(roots);
+                const flat: { id: string; name: string; depth: number }[] = [];
+                const walk = (nodes: CatNode[], depth: number) => { nodes.forEach(n => { flat.push({ id: n.id, name: n.name, depth }); walk(n.children, depth + 1); }); };
+                walk(roots, 0);
+                setCategories(flat);
+                if (flat.length > 0 && !categoryId) {
+                    setCategoryId(flat[0].id);
                 }
             }
         }
@@ -389,7 +403,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
             if (error) throw error;
 
-            // Update Images
+            // Update Images & category links
             if (productId) {
                 // Strategy: We will just delete all old images/variants and recreate them for simplicity in this MVP.
                 // In a clearer implementation, we would diff them.
@@ -408,7 +422,17 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     await supabase.from('product_images').insert(imageInserts);
                 }
 
-                // 2. Variants
+                // 2. Category links (extra categories)
+                {
+                    await supabase.from('product_category_links').delete().eq('product_id', productId);
+                    const linkIds = extraCategoryIds.filter(id => id && id !== categoryId);
+                    if (linkIds.length > 0) {
+                        const linkRows = linkIds.map(id => ({ product_id: productId, category_id: id, is_primary: false }));
+                        await supabase.from('product_category_links').insert(linkRows);
+                    }
+                }
+
+                // 3. Variants
                 if (isEditMode) {
                     // Be careful not to delete ALL variants if we want to preserve IDs etc, 
                     // but for now, full replacement is safer to ensure sync.
@@ -559,10 +583,44 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     >
                                         {categories.length === 0 && <option value="">Loading categories...</option>}
                                         {categories.length > 0 && <option value="">Select a category</option>}
-                                        {categories.map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        {categories.map((cat: any) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {'—'.repeat(cat.depth || 0)}{(cat.depth || 0) > 0 ? ' ' : ''}{cat.name}
+                                            </option>
                                         ))}
                                     </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                        Also show in sub‑categories
+                                    </label>
+                                    <div className="max-h-40 overflow-y-auto rounded-lg border-2 border-gray-300 px-3 py-2 space-y-1 bg-white">
+                                        {categories.length === 0 && (
+                                            <p className="text-sm text-gray-400">Loading...</p>
+                                        )}
+                                        {categories.length > 0 && categories.map((cat: any) => (
+                                            <label key={cat.id} className="flex items-center gap-2 text-sm text-gray-700">
+                                                <input
+                                                    type="checkbox"
+                                                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-600"
+                                                    checked={extraCategoryIds.includes(cat.id)}
+                                                    onChange={(e) => {
+                                                        const checked = e.target.checked;
+                                                        setExtraCategoryIds(prev => {
+                                                            if (checked) return prev.includes(cat.id) ? prev : [...prev, cat.id];
+                                                            return prev.filter(id => id !== cat.id);
+                                                        });
+                                                    }}
+                                                    disabled={cat.id === categoryId}
+                                                />
+                                                <span>
+                                                    {'—'.repeat(cat.depth || 0)}{(cat.depth || 0) > 0 ? ' ' : ''}{cat.name}
+                                                    {cat.id === categoryId && <span className="ml-1 text-xs text-gray-400">(main)</span>}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div>

@@ -75,7 +75,8 @@ function ShopContent() {
                 *,
                 categories!inner(name, slug),
                 product_images!product_id(url, position),
-                product_variants(id, name, price, quantity, option1, option2, image_url)
+                product_variants(id, name, price, quantity, option1, option2, image_url),
+                product_category_links:product_category_links(category_id)
               `, { count: 'exact' })
               .order('position', { foreignTable: 'product_images', ascending: true });
 
@@ -84,7 +85,7 @@ function ShopContent() {
               query = query.ilike('name', `%${search}%`);
             }
 
-            // Category Filter with Subcategories
+            // Category Filter with Subcategories + extra category links
             if (selectedCategory !== 'all') {
               const categoryObj = categories.find(c => c.slug === selectedCategory);
 
@@ -94,7 +95,11 @@ function ShopContent() {
                   .filter(c => c.parent_id === categoryObj.id)
                   .map(c => c.slug);
                 targetSlugs.push(...childSlugs);
-                query = query.in('categories.slug', targetSlugs);
+                // match either primary category slug OR any linked category
+                query = query.or(
+                  `categories.slug.in.(${targetSlugs.join(',')}),
+                   product_category_links.category_id.eq.${categoryObj.id}`
+                );
               } else {
                 query = query.eq('categories.slug', selectedCategory);
               }

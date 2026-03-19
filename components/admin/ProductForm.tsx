@@ -17,6 +17,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
     const [productName, setProductName] = useState(initialData?.name || '');
     const [categoryId, setCategoryId] = useState(initialData?.category_id || '');
+    const [extraCategoryIds, setExtraCategoryIds] = useState<string[]>([]);
     const [price, setPrice] = useState(initialData?.price || '');
     const [comparePrice, setComparePrice] = useState(initialData?.compare_at_price || '');
     const [sku, setSku] = useState(initialData?.sku || '');
@@ -417,7 +418,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
             if (error) throw error;
 
-            // Update Images
+            // Update Images & category links
             if (productId) {
                 // Strategy: We will just delete all old images/variants and recreate them for simplicity in this MVP.
                 // In a clearer implementation, we would diff them.
@@ -436,7 +437,18 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                     await supabase.from('product_images').insert(imageInserts);
                 }
 
-                // 2. Variants
+                // 2. Category links (extra categories)
+                {
+                    // clear old links
+                    await supabase.from('product_category_links').delete().eq('product_id', productId);
+                    const linkIds = extraCategoryIds.filter(id => id && id !== categoryId);
+                    if (linkIds.length > 0) {
+                        const linkRows = linkIds.map(id => ({ product_id: productId, category_id: id, is_primary: false }));
+                        await supabase.from('product_category_links').insert(linkRows);
+                    }
+                }
+
+                // 3. Variants
                 if (isEditMode) {
                     // Be careful not to delete ALL variants if we want to preserve IDs etc, 
                     // but for now, full replacement is safer to ensure sync.
@@ -593,6 +605,38 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                             </option>
                                         ))}
                                     </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                        Also show in sub‑categories
+                                    </label>
+                                    <div className="max-h-40 overflow-y-auto rounded-lg border-2 border-gray-300 px-3 py-2 space-y-1 bg-white">
+                                        {categories.length === 0 && (
+                                            <p className="text-sm text-gray-400">Loading...</p>
+                                        )}
+                                        {categories.length > 0 && categories.map((cat: any) => (
+                                            <label key={cat.id} className="flex items-center gap-2 text-sm text-gray-700">
+                                                <input
+                                                    type="checkbox"
+                                                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-600"
+                                                    checked={extraCategoryIds.includes(cat.id)}
+                                                    onChange={(e) => {
+                                                        const checked = e.target.checked;
+                                                        setExtraCategoryIds(prev => {
+                                                            if (checked) return prev.includes(cat.id) ? prev : [...prev, cat.id];
+                                                            return prev.filter(id => id !== cat.id);
+                                                        });
+                                                    }}
+                                                    disabled={cat.id === categoryId}
+                                                />
+                                                <span>
+                                                    {'—'.repeat(cat.depth || 0)}{(cat.depth || 0) > 0 ? ' ' : ''}{cat.name}
+                                                    {cat.id === categoryId && <span className="ml-1 text-xs text-gray-400">(main)</span>}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
                                 </div>
 
                                 <div>
