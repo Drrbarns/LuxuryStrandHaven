@@ -82,7 +82,7 @@ export default function Header() {
       const items: MobileNavItem[] = [{ label: 'Shop', href: '/shop' }];
 
       parents.forEach(parent => {
-        const children = data.filter(c => c.parent_id === parent.id);
+        const children = data.filter(c => c.parent_id === parent.id && !(parent.slug === 'bundles' && c.slug === 'hair-extensions'));
         if (children.length > 0) {
           items.push({
             label: parent.name,
