@@ -78,26 +78,47 @@ export default function Header() {
         .order('name');
       if (!data) return;
 
-      const parents = data.filter(c => !c.parent_id);
-      const items: MobileNavItem[] = [{ label: 'Shop', href: '/shop' }];
-
-      parents.forEach(parent => {
-        const children = data.filter(c => c.parent_id === parent.id && !(parent.slug === 'bundles' && c.slug === 'hair-extensions'));
-        if (children.length > 0) {
-          items.push({
-            label: parent.name,
-            href: `/shop?category=${parent.slug}`,
-            children: children.map(child => ({
-              label: child.name,
-              href: `/shop?category=${child.slug}`,
-            })),
-          });
-        } else {
-          items.push({ label: parent.name, href: `/shop?category=${parent.slug}` });
-        }
+      const parentsBySlug = new Map(data.filter(c => !c.parent_id).map(c => [c.slug, c]));
+      const childrenByParentId = new Map<string, typeof data>();
+      data.filter(c => c.parent_id).forEach((child) => {
+        const parentId = child.parent_id as string;
+        const existing = childrenByParentId.get(parentId) || [];
+        childrenByParentId.set(parentId, [...existing, child]);
       });
 
-      items.push({ label: 'Academia (Online Classes)', href: '/academia' });
+      const makeParentItem = (
+        slug: string,
+        label: string,
+        options?: { excludeChildSlug?: string }
+      ): MobileNavItem | null => {
+        const parent = parentsBySlug.get(slug);
+        if (!parent) return null;
+        const children = (childrenByParentId.get(parent.id) || [])
+          .filter(child => !options?.excludeChildSlug || child.slug !== options.excludeChildSlug)
+          .map(child => ({ label: child.name, href: `/shop?category=${child.slug}` }));
+
+        if (children.length > 0) return { label, href: `/shop?category=${parent.slug}`, children };
+        return { label, href: `/shop?category=${parent.slug}` };
+      };
+
+      const hairExtensions = data.find(c => c.slug === 'hair-extensions');
+
+      const orderedItems: MobileNavItem[] = [{ label: 'Shop', href: '/shop' }];
+      const wigsItem = makeParentItem('wigs', 'Wigs');
+      const bundlesItem = makeParentItem('bundles', 'Bundles', { excludeChildSlug: 'hair-extensions' });
+      const closureItem = makeParentItem('closure-frontals', 'Closure and frontal');
+      const toolsItem = makeParentItem('products-tools', 'Products and tools');
+      const preOrderItem = makeParentItem('pre-orders', 'Pre order');
+
+      if (wigsItem) orderedItems.push(wigsItem);
+      if (bundlesItem) orderedItems.push(bundlesItem);
+      if (closureItem) orderedItems.push(closureItem);
+      if (hairExtensions) orderedItems.push({ label: 'Hair extensions', href: `/shop?category=${hairExtensions.slug}` });
+      if (toolsItem) orderedItems.push(toolsItem);
+      if (preOrderItem) orderedItems.push(preOrderItem);
+      orderedItems.push({ label: 'Academia', href: '/academia' });
+
+      const items = orderedItems;
       setMobileNavItems(items);
     }
     fetchCategories();
