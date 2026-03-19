@@ -14,17 +14,27 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
       try {
         const { data, error } = await supabase
           .from('products')
-          .select(`
-            *,
-            categories(id, name),
-            product_variants(*),
-            product_images(*)
-          `)
+          .select('*')
           .eq('id', resolvedParams.id)
           .single();
 
         if (error) throw error;
-        setProductData(data);
+
+        const [{ data: variants }, { data: images }, { data: extraCategories }] = await Promise.all([
+          supabase.from('product_variants').select('*').eq('product_id', resolvedParams.id),
+          supabase.from('product_images').select('*').eq('product_id', resolvedParams.id).order('position', { ascending: true }),
+          supabase
+            .from('product_category_links')
+            .select('category_id')
+            .eq('product_id', resolvedParams.id),
+        ]);
+
+        setProductData({
+          ...data,
+          product_variants: variants || [],
+          product_images: images || [],
+          extra_categories: (extraCategories || []).map((r: any) => ({ id: r.category_id })),
+        });
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
