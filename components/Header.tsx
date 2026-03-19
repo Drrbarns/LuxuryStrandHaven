@@ -8,48 +8,12 @@ import { supabase } from '@/lib/supabase';
 import { useCMS } from '@/context/CMSContext';
 import AnnouncementBar from './AnnouncementBar';
 
-/** Mobile menu: link or expandable parent with sub-items (2 levels under Shop) */
 type MobileNavLink = { label: string; href: string };
-type ShopSectionItem =
-  | MobileNavLink
-  | { label: string; children: MobileNavLink[] };
 type MobileNavItem =
   | MobileNavLink
-  | { label: string; children: ShopSectionItem[] };
+  | { label: string; href: string; children: MobileNavLink[] };
 
-const MOBILE_NAV_ITEMS: MobileNavItem[] = [
-  { label: 'Shop', href: '/shop' },
-  {
-    label: 'Wigs',
-    children: [
-      { label: 'Custom Luxury Wigs', href: '/shop?category=custom-luxury-wigs' },
-      { label: 'Factory Wigs', href: '/shop?category=factory-wigs' },
-    ],
-  },
-  {
-    label: 'Bundles',
-    children: [
-      { label: 'Raw Hairs', href: '/shop?category=bundles-raw-hairs' },
-      { label: '100% Virgin Hair', href: '/shop?category=bundles-virgin-hair' },
-    ],
-  },
-  {
-    label: 'Closures & Frontals',
-    children: [
-      { label: 'Raw Hairs', href: '/shop?category=closures-raw-hairs' },
-      { label: '100% Virgin Hair', href: '/shop?category=closures-virgin-hair' },
-    ],
-  },
-  { label: 'Products & Tools', href: '/shop?category=products-tools' },
-  { label: 'Braiding Extensions', href: '/shop?category=braiding-extensions' },
-  { label: 'Pre Orders', href: '/shop' },
-  { label: 'Academia (Online Classes)', href: '/academia' },
-];
-
-function isNavItemWithChildren(item: MobileNavItem): item is { label: string; children: ShopSectionItem[] } {
-  return 'children' in item && Array.isArray((item as { children?: unknown }).children);
-}
-function isShopSectionWithSubs(item: ShopSectionItem): item is { label: string; children: MobileNavLink[] } {
+function isNavItemWithChildren(item: MobileNavItem): item is { label: string; href: string; children: MobileNavLink[] } {
   return 'children' in item && Array.isArray((item as { children?: unknown }).children);
 }
 
@@ -61,7 +25,10 @@ export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [expandedMobileSection, setExpandedMobileSection] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
-  const mobileNavItems = MOBILE_NAV_ITEMS;
+  const [mobileNavItems, setMobileNavItems] = useState<MobileNavItem[]>([
+    { label: 'Shop', href: '/shop' },
+    { label: 'Academia (Online Classes)', href: '/academia' },
+  ]);
 
   const { cartCount, isCartOpen, setIsCartOpen } = useCart();
   const { getSetting, getSettingJSON } = useCMS();
@@ -100,6 +67,40 @@ export default function Header() {
       window.removeEventListener('wishlistUpdated', updateWishlistCount);
       subscription.unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const { data } = await supabase
+        .from('categories')
+        .select('id, name, slug, parent_id')
+        .eq('status', 'active')
+        .order('name');
+      if (!data) return;
+
+      const parents = data.filter(c => !c.parent_id);
+      const items: MobileNavItem[] = [{ label: 'Shop', href: '/shop' }];
+
+      parents.forEach(parent => {
+        const children = data.filter(c => c.parent_id === parent.id);
+        if (children.length > 0) {
+          items.push({
+            label: parent.name,
+            href: `/shop?category=${parent.slug}`,
+            children: children.map(child => ({
+              label: child.name,
+              href: `/shop?category=${child.slug}`,
+            })),
+          });
+        } else {
+          items.push({ label: parent.name, href: `/shop?category=${parent.slug}` });
+        }
+      });
+
+      items.push({ label: 'Academia (Online Classes)', href: '/academia' });
+      setMobileNavItems(items);
+    }
+    fetchCategories();
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -302,48 +303,16 @@ export default function Header() {
                         id={`mobile-nav-${item.label.replace(/\s+/g, '-')}`}
                         className={isExpanded ? 'block' : 'hidden'}
                       >
-                        {item.children.map((sub) => {
-                          if (isShopSectionWithSubs(sub)) {
-                            const subExpanded = expandedMobileSection === `${item.label}-${sub.label}`;
-                            return (
-                              <div key={sub.label} className="border-t border-gray-50">
-                                <button
-                                  type="button"
-                                  className="flex w-full items-center justify-between px-4 py-2.5 pl-6 text-sm font-medium text-gray-700"
-                                  onClick={() => setExpandedMobileSection(subExpanded ? null : `${item.label}-${sub.label}`)}
-                                  aria-expanded={subExpanded}
-                                >
-                                  {sub.label}
-                                  <i className={`ri-arrow-down-s-line text-lg text-gray-400 transition-transform ${subExpanded ? 'rotate-180' : ''}`} aria-hidden />
-                                </button>
-                                {subExpanded && (
-                                  <div className="bg-gray-50/80 pb-1">
-                                    {sub.children.map((leaf) => (
-                                      <Link
-                                        key={leaf.href + leaf.label}
-                                        href={leaf.href}
-                                        className="block px-4 py-2 pl-8 text-sm text-gray-600 hover:text-gray-900"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                      >
-                                        {leaf.label}
-                                      </Link>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }
-                          return (
-                            <Link
-                              key={sub.href}
-                              href={sub.href}
-                              className="block px-4 py-2.5 pl-6 text-sm font-medium text-gray-700 hover:text-gray-900"
-                              onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                              {sub.label}
-                            </Link>
-                          );
-                        })}
+                        {item.children.map((sub) => (
+                          <Link
+                            key={sub.href + sub.label}
+                            href={sub.href}
+                            className="block px-4 py-2.5 pl-6 text-sm font-medium text-gray-700 hover:text-gray-900"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
                       </div>
                     </div>
                   );
