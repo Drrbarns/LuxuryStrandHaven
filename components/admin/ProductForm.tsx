@@ -17,7 +17,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
     const [productName, setProductName] = useState(initialData?.name || '');
     const [categoryId, setCategoryId] = useState(initialData?.category_id || '');
-    const [extraCategoryIds, setExtraCategoryIds] = useState<string[]>([]);
+    const [extraCategoryIds, setExtraCategoryIds] = useState<string[]>(
+        (initialData?.extra_categories || []).map((c: any) => c.id)
+    );
     const [price, setPrice] = useState(initialData?.price || '');
     const [comparePrice, setComparePrice] = useState(initialData?.compare_at_price || '');
     const [sku, setSku] = useState(initialData?.sku || '');
@@ -439,12 +441,13 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
                 // 2. Category links (extra categories)
                 {
-                    // clear old links
-                    await supabase.from('product_category_links').delete().eq('product_id', productId);
+                    const { error: delErr } = await supabase.from('product_category_links').delete().eq('product_id', productId);
+                    if (delErr) console.error('Error clearing category links:', delErr);
                     const linkIds = extraCategoryIds.filter(id => id && id !== categoryId);
                     if (linkIds.length > 0) {
                         const linkRows = linkIds.map(id => ({ product_id: productId, category_id: id, is_primary: false }));
-                        await supabase.from('product_category_links').insert(linkRows);
+                        const { error: linkErr } = await supabase.from('product_category_links').insert(linkRows);
+                        if (linkErr) console.error('Error saving category links:', linkErr);
                     }
                 }
 
