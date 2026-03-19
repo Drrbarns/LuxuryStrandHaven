@@ -38,12 +38,7 @@ export default function ProductsPage() {
       setLoading(true);
       let query = supabase
         .from('products')
-        .select(`
-          *,
-          categories(name),
-          product_variants(count),
-          product_images(url, position)
-        `);
+        .select('*');
 
       // Apply sorting
       if (sortBy === 'newest') query = query.order('created_at', { ascending: false });
@@ -57,14 +52,33 @@ export default function ProductsPage() {
       if (error) throw error;
 
       if (data) {
+        const productIds = data.map((p: any) => p.id);
+        const categoryIds = Array.from(new Set(data.map((p: any) => p.category_id).filter(Boolean)));
+
+        const [{ data: imagesData }, { data: categoriesData }] = await Promise.all([
+          productIds.length > 0
+            ? supabase.from('product_images').select('product_id, url, position').in('product_id', productIds)
+            : Promise.resolve({ data: [] as any[] }),
+          categoryIds.length > 0
+            ? supabase.from('categories').select('id, name').in('id', categoryIds)
+            : Promise.resolve({ data: [] as any[] }),
+        ]);
+
+        const categoryMap = new Map((categoriesData || []).map((c: any) => [c.id, c.name]));
+        const imagesByProduct = new Map<string, any[]>();
+        (imagesData || []).forEach((img: any) => {
+          const existing = imagesByProduct.get(img.product_id) || [];
+          existing.push(img);
+          imagesByProduct.set(img.product_id, existing);
+        });
+
         // Transform data for UI
         const transformedProducts = data.map((p: any) => ({
           ...p,
-          category: p.categories?.name || 'Uncategorized',
-          image: p.product_images?.find((img: any) => img.position === 0)?.url
-            || p.product_images?.[0]?.url
+          category: categoryMap.get(p.category_id) || 'Uncategorized',
+          image: (imagesByProduct.get(p.id) || []).sort((a: any, b: any) => (a.position ?? 999) - (b.position ?? 999))[0]?.url
             || 'https://via.placeholder.com/300?text=No+Image',
-          variantsCount: p.product_variants?.[0]?.count || 0,
+          variantsCount: 0,
           stock: p.quantity,
           sales: 0, // Placeholder for now
           rating: p.rating_avg || 0
