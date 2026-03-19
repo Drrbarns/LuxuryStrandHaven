@@ -7,8 +7,8 @@ import AnimatedSection from '@/components/AnimatedSection';
 
 export default function RefundPolicyPage() {
   const { getSetting } = useCMS();
-  const contactEmail = getSetting('contact_email') || 'maame890@gmail.com';
-  const contactPhone = getSetting('contact_phone') || '054 930 7736';
+  const contactEmail = getSetting('contact_email') || 'eligantstrands@gmail.com';
+  const contactPhone = getSetting('contact_phone') || '0549307736';
   const whatsappNumber = toWhatsAppNumber(contactPhone);
   const whatsappHref = whatsappNumber ? `https://wa.me/${whatsappNumber}` : '#';
 

@@ -4,8 +4,8 @@ import { useCMS } from '@/context/CMSContext';
 
 export default function TermsPage() {
   const { getSetting } = useCMS();
-  const contactEmail = getSetting('contact_email') || 'maame890@gmail.com';
-  const contactPhone = getSetting('contact_phone') || '054 930 7736';
+  const contactEmail = getSetting('contact_email') || 'eligantstrands@gmail.com';
+  const contactPhone = getSetting('contact_phone') || '0549307736';
 
   return (
     <div className="min-h-screen bg-white">
@@ -300,7 +300,7 @@ export default function TermsPage() {
                   <i className="ri-mail-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:contact@example.com" className="text-gray-900 hover:underline">contact@example.com</a>
+                    <a href="mailto:eligantstrands@gmail.com" className="text-gray-900 hover:underline">eligantstrands@gmail.com</a>
                   </div>
                 </div>
 

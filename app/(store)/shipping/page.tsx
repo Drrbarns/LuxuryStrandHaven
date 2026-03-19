@@ -7,7 +7,7 @@ import AnimatedSection from '@/components/AnimatedSection';
 
 export default function ShippingPage() {
   const { getSetting } = useCMS();
-  const contactPhone = getSetting('contact_phone') || '054 930 7736';
+  const contactPhone = getSetting('contact_phone') || '0549307736';
   const telHref = toWhatsAppNumber(contactPhone) ? `tel:+${toWhatsAppNumber(contactPhone)}` : '#';
 
   return (

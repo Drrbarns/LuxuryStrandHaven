@@ -12,8 +12,8 @@ import { getArticles, relatedArticles } from './help-articles-data';
 export default function ArticlePage() {
   const params = useParams();
   const { getSetting } = useCMS();
-  const contactEmail = getSetting('contact_email') || 'maame890@gmail.com';
-  const contactPhone = getSetting('contact_phone') || '054 930 7736';
+  const contactEmail = getSetting('contact_email') || 'eligantstrands@gmail.com';
+  const contactPhone = getSetting('contact_phone') || '0549307736';
   const articles = getArticles(contactPhone, contactEmail);
   const articleId = params?.id as string | undefined;
   const article = (articleId && articles[articleId as keyof typeof articles]) || articles['1'];

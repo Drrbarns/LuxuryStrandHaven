@@ -33,8 +33,8 @@ const mockOrders = [
 export default function ReturnsPortalPage() {
   const router = useRouter();
   const { getSetting } = useCMS();
-  const contactEmail = getSetting('contact_email') || 'maame890@gmail.com';
-  const contactPhone = getSetting('contact_phone') || '054 930 7736';
+  const contactEmail = getSetting('contact_email') || 'eligantstrands@gmail.com';
+  const contactPhone = getSetting('contact_phone') || '0549307736';
   const whatsappHref = toWhatsAppNumber(contactPhone) ? `https://wa.me/${toWhatsAppNumber(contactPhone)}` : '#';
 
   const [step, setStep] = useState(1);

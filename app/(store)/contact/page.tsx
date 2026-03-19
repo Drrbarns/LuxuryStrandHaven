@@ -76,8 +76,8 @@ export default function ContactPage() {
   };
 
   // CMS-driven config (fallbacks = store details)
-  const contactEmail = getSetting('contact_email') || 'maame890@gmail.com';
-  const contactPhone = getSetting('contact_phone') || '054 930 7736';
+  const contactEmail = getSetting('contact_email') || 'eligantstrands@gmail.com';
+  const contactPhone = getSetting('contact_phone') || '0549307736';
   const contactAddress = getSetting('contact_address') || 'Kwashieman- Opposite Been-To complex, Accra, GH';
   const heroTitle = getSetting('contact_hero_title') || 'Get In Touch';
   const heroSubtitle = getSetting('contact_hero_subtitle') || 'We\'d love to hear from you. Our team is always here to chat.';

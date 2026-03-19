@@ -118,14 +118,14 @@ export default function MaintenancePage() {
           <p className="text-gray-600 mb-6 text-sm sm:text-base">Our customer service team is still available to help you.</p>
           <div className="flex flex-wrap gap-3 sm:gap-4 justify-center">
             <a
-              href="mailto:contact@luxurystrandhaven.com"
+              href="mailto:eligantstrands@gmail.com"
               className="inline-flex items-center gap-2 bg-white text-gray-900 px-5 py-2.5 rounded-full font-medium hover:bg-gray-50 transition-colors border border-gray-200 text-sm"
             >
               <i className="ri-mail-line"></i>
               Email Us
             </a>
             <a
-              href="https://wa.me/233595211414"
+              href="https://wa.me/233549307736"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-gray-900 text-white px-5 py-2.5 rounded-full font-medium hover:bg-gray-800 transition-colors text-sm"
@@ -134,7 +134,7 @@ export default function MaintenancePage() {
               WhatsApp
             </a>
             <a
-              href="tel:+233595211414"
+              href="tel:+233549307736"
               className="inline-flex items-center gap-2 bg-white text-gray-900 px-5 py-2.5 rounded-full font-medium hover:bg-gray-50 transition-colors border border-gray-200 text-sm"
             >
               <i className="ri-phone-line"></i>

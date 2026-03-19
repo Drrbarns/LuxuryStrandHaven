@@ -281,7 +281,7 @@ export default function PrivacyPage() {
             </div>
 
             <p className="text-gray-600 leading-relaxed">
-              To exercise any of these rights, please contact us at <a href="mailto:contact@example.com" className="text-gray-900 font-medium hover:underline">contact@example.com</a> or through your account settings. We will respond within 30 days.
+              To exercise any of these rights, please contact us at <a href="mailto:eligantstrands@gmail.com" className="text-gray-900 font-medium hover:underline">eligantstrands@gmail.com</a> or through your account settings. We will respond within 30 days.
             </p>
           </section>
 
@@ -384,7 +384,7 @@ export default function PrivacyPage() {
                   <i className="ri-mail-line text-gray-900 text-xl mt-1"></i>
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:contact@example.com" className="text-gray-900 hover:underline">contact@example.com</a>
+                    <a href="mailto:eligantstrands@gmail.com" className="text-gray-900 hover:underline">eligantstrands@gmail.com</a>
                   </div>
                 </div>
 

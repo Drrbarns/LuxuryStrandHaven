@@ -409,7 +409,7 @@ export default function ProductEditor({ productId }: { productId: string }) {
                 </label>
                 <div className="flex items-center">
                   <span className="text-gray-600 bg-gray-100 px-4 py-3 border-2 border-r-0 border-gray-300 rounded-l-lg">
-                    elegancemart.com/product/
+                    luxurystrandshaven.com/product/
                   </span>
                   <input
                     type="text"
