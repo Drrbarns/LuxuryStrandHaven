@@ -49,13 +49,14 @@ export default function AdminLayout({
 
       if (profileError || !profile) {
         console.error('Failed to fetch user profile');
+        document.cookie = 'admin_session=; path=/; max-age=0';
         router.push('/admin/login');
         return;
       }
 
-      // Only allow admin and staff roles
       if (profile.role !== 'admin' && profile.role !== 'staff') {
         console.warn('User does not have admin/staff role');
+        document.cookie = 'admin_session=; path=/; max-age=0';
         await supabase.auth.signOut();
         router.push('/admin/login?error=unauthorized');
         return;
@@ -65,6 +66,7 @@ export default function AdminLayout({
       setUserRole(profile.role);
       setIsAuthenticated(true);
       setIsLoading(false);
+      document.cookie = 'admin_session=1; path=/; max-age=86400; SameSite=Lax';
     }
 
     checkAuth();
@@ -129,6 +131,7 @@ export default function AdminLayout({
   }, []);
 
   const handleLogout = async () => {
+    document.cookie = 'admin_session=; path=/; max-age=0';
     await supabase.auth.signOut();
     router.push('/admin/login');
   };

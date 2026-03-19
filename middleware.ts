@@ -52,7 +52,10 @@ export async function middleware(request: NextRequest) {
 
   const inMaintenance = await isMaintenanceModeEnabled();
   if (inMaintenance) {
-    return NextResponse.redirect(new URL('/maintenance', request.url));
+    const isAdmin = request.cookies.get('admin_session')?.value === '1';
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL('/maintenance', request.url));
+    }
   }
 
   return NextResponse.next();
