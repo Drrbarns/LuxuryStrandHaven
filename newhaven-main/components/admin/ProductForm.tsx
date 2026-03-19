@@ -187,8 +187,8 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     }));
 
     // Variant data map keyed by joined option values
-    const [variantData, setVariantData] = useState<Record<string, { price: string; stock: string; sku: string }>>(() => {
-        const data: Record<string, { price: string; stock: string; sku: string }> = {};
+    const [variantData, setVariantData] = useState<Record<string, { price: string; comparePrice: string; stock: string; sku: string }>>(() => {
+        const data: Record<string, { price: string; comparePrice: string; stock: string; sku: string }> = {};
         const storedNames: string[] = initialData?.metadata?.option_names || [];
         (initialData?.product_variants || []).forEach((v: any) => {
             const values = storedNames
@@ -197,6 +197,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             if (values.length > 0) {
                 data[values.join('|||')] = {
                     price: v.price?.toString() || '',
+                    comparePrice: v.compare_at_price?.toString() || '',
                     stock: (v.stock ?? v.quantity ?? 0).toString(),
                     sku: v.sku || '',
                 };
@@ -220,22 +221,22 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         : [];
 
     const variants = variantCombinations.map(combo => {
-        const d = variantData[combo.key] || { price: price?.toString() || '', stock: '0', sku: '' };
-        return { values: combo.values, sku: d.sku, price: d.price || price?.toString() || '', stock: d.stock || '0' };
+        const d = variantData[combo.key] || { price: price?.toString() || '', comparePrice: '', stock: '0', sku: '' };
+        return { values: combo.values, sku: d.sku, price: d.price || price?.toString() || '', comparePrice: d.comparePrice || '', stock: d.stock || '0' };
     });
 
     const updateVariantField = (key: string, field: string, value: string) => {
         setVariantData(prev => ({
             ...prev,
-            [key]: { ...prev[key] || { price: price?.toString() || '', stock: '0', sku: '' }, [field]: value },
+            [key]: { ...prev[key] || { price: price?.toString() || '', comparePrice: '', stock: '0', sku: '' }, [field]: value },
         }));
     };
 
-    const bulkSetField = (field: 'price' | 'stock', value: string) => {
+    const bulkSetField = (field: 'price' | 'stock' | 'comparePrice', value: string) => {
         setVariantData(prev => {
             const updated = { ...prev };
             variantCombinations.forEach(combo => {
-                updated[combo.key] = { ...updated[combo.key] || { price: price?.toString() || '', stock: '0', sku: '' }, [field]: value };
+                updated[combo.key] = { ...updated[combo.key] || { price: price?.toString() || '', comparePrice: '', stock: '0', sku: '' }, [field]: value };
             });
             return updated;
         });
@@ -422,6 +423,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                         name: v.values.join(' / ') || 'Default',
                         sku: v.sku || null,
                         price: parseFloat(v.price) || 0,
+                        compare_at_price: v.comparePrice ? parseFloat(v.comparePrice) || null : null,
                         quantity: parseInt(v.stock) || 0,
                         option1: v.values[0] || null,
                         option2: v.values[1] || null,
@@ -965,18 +967,24 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                             <i className="ri-grid-line mr-2 text-lg text-purple-600"></i>
                                             Set Price & Stock — {variantCombinations.length} variant{variantCombinations.length > 1 ? 's' : ''}
                                         </h4>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
                                             <button
-                                                onClick={() => { const val = prompt('Set price for ALL variants:', price?.toString() || '0'); if (val !== null) bulkSetField('price', val); }}
+                                                onClick={() => { const val = prompt('Set SALE price for ALL variants:', price?.toString() || '0'); if (val !== null) bulkSetField('price', val); }}
                                                 className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-medium hover:bg-gray-50 transition-colors"
                                             >
-                                                Bulk Set Price
+                                                Bulk Sale Price
+                                            </button>
+                                            <button
+                                                onClick={() => { const val = prompt('Set ORIGINAL price for ALL variants:', comparePrice?.toString() || '0'); if (val !== null) bulkSetField('comparePrice', val); }}
+                                                className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-medium hover:bg-gray-50 transition-colors"
+                                            >
+                                                Bulk Original Price
                                             </button>
                                             <button
                                                 onClick={() => { const val = prompt('Set stock for ALL variants:', '0'); if (val !== null) bulkSetField('stock', val); }}
                                                 className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-medium hover:bg-gray-50 transition-colors"
                                             >
-                                                Bulk Set Stock
+                                                Bulk Stock
                                             </button>
                                         </div>
                                     </div>
@@ -989,13 +997,19 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                                             {g.name || `Option ${i + 1}`}
                                                         </th>
                                                     ))}
-                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Price (GH₵)</th>
+                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Original Price</th>
+                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Sale Price</th>
+                                                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 text-center">Discount</th>
                                                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Stock</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {variantCombinations.map((combo) => {
-                                                    const d = variantData[combo.key] || { price: price?.toString() || '', stock: '0', sku: '' };
+                                                    const d = variantData[combo.key] || { price: price?.toString() || '', comparePrice: '', stock: '0', sku: '' };
+                                                    const saleNum = parseFloat(d.price) || 0;
+                                                    const origNum = parseFloat(d.comparePrice) || 0;
+                                                    const hasDiscount = origNum > 0 && saleNum > 0 && origNum > saleNum;
+                                                    const discountPct = hasDiscount ? Math.round(((origNum - saleNum) / origNum) * 100) : 0;
                                                     return (
                                                         <tr key={combo.key} className="border-b border-gray-100 hover:bg-gray-50">
                                                             {combo.values.map((val, vi) => (
@@ -1006,12 +1020,36 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                                             <td className="py-3 px-4">
                                                                 <input
                                                                     type="number"
+                                                                    value={d.comparePrice}
+                                                                    onChange={(e) => updateVariantField(combo.key, 'comparePrice', e.target.value)}
+                                                                    className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
+                                                                    step="0.01"
+                                                                    placeholder={comparePrice?.toString() || '0'}
+                                                                />
+                                                            </td>
+                                                            <td className="py-3 px-4">
+                                                                <input
+                                                                    type="number"
                                                                     value={d.price}
                                                                     onChange={(e) => updateVariantField(combo.key, 'price', e.target.value)}
                                                                     className="w-28 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
                                                                     step="0.01"
                                                                     placeholder={price?.toString() || '0'}
                                                                 />
+                                                            </td>
+                                                            <td className="py-3 px-4 text-center">
+                                                                {hasDiscount ? (
+                                                                    <div className="flex flex-col items-center gap-0.5">
+                                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                                                                            -{discountPct}%
+                                                                        </span>
+                                                                        <span className="text-[10px] text-gray-500">
+                                                                            Save GH₵{(origNum - saleNum).toFixed(2)}
+                                                                        </span>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-xs text-gray-400">—</span>
+                                                                )}
                                                             </td>
                                                             <td className="py-3 px-4">
                                                                 <input
@@ -1028,11 +1066,24 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div className="p-3 bg-gray-50 border-t border-gray-100">
+                                    <div className="p-3 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center gap-4">
                                         <p className="text-xs text-gray-800 flex items-center">
                                             <i className="ri-information-line mr-1.5"></i>
-                                            Total stock across all variants: <strong className="ml-1">{variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)}</strong>
+                                            Total stock: <strong className="ml-1">{variants.reduce((sum, v) => sum + (parseInt(v.stock) || 0), 0)}</strong>
                                         </p>
+                                        {(() => {
+                                            const withDiscount = variants.filter(v => {
+                                                const o = parseFloat(v.comparePrice) || 0;
+                                                const s = parseFloat(v.price) || 0;
+                                                return o > 0 && s > 0 && o > s;
+                                            });
+                                            return withDiscount.length > 0 ? (
+                                                <p className="text-xs text-red-700 flex items-center">
+                                                    <i className="ri-price-tag-3-line mr-1.5"></i>
+                                                    {withDiscount.length} of {variants.length} variant{variants.length > 1 ? 's' : ''} on sale
+                                                </p>
+                                            ) : null;
+                                        })()}
                                     </div>
                                 </div>
                             )}

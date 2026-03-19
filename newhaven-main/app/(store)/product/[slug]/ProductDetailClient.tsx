@@ -238,6 +238,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   // Determine the active price: variant price if selected, otherwise base price
   const activePrice = selectedVariant?.price ?? product?.price ?? 0;
+  const activeComparePrice = selectedVariant?.compare_at_price ?? product?.compare_at_price ?? null;
   const activeStock = selectedVariant ? (selectedVariant.stock ?? selectedVariant.quantity ?? product?.stockCount ?? 0) : (product?.stockCount ?? 0);
 
   const handleAddToCart = () => {
@@ -291,7 +292,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     );
   }
 
-  const discount = product.compare_at_price ? Math.round((1 - activePrice / product.compare_at_price) * 100) : 0;
+  const discount = activeComparePrice && activeComparePrice > activePrice ? Math.round((1 - activePrice / activeComparePrice) * 100) : 0;
   const minVariantPrice = hasVariants ? Math.min(...product.variants.map((v: any) => v.price || product.price)) : product.price;
 
   const productSchema = generateProductSchema({
@@ -431,8 +432,8 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     ) : (
                       <span className="text-2xl font-bold text-gray-900">GH₵{activePrice.toFixed(2)}</span>
                     )}
-                    {product.compare_at_price && product.compare_at_price > activePrice && (
-                      <span className="text-lg text-gray-400 line-through">GH₵{product.compare_at_price.toFixed(2)}</span>
+                    {activeComparePrice && activeComparePrice > activePrice && (
+                      <span className="text-lg text-gray-400 line-through">GH₵{activeComparePrice.toFixed(2)}</span>
                     )}
                   </div>
                   <div className="flex items-center">
