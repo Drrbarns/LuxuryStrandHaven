@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { supabase } from '@/lib/supabase';
 import ScrollReveal from '@/components/ScrollReveal';
 
@@ -44,10 +45,13 @@ export default async function CategoriesPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-gray-900 text-white pb-32 lg:pb-48 pt-24 lg:pt-32 relative overflow-hidden">
         <div className="absolute inset-0 opacity-35">
-           <img 
-            src="https://images.unsplash.com/photo-1560869713-7d0a29430803?q=80&w=2626&auto=format&fit=crop" 
-            alt="Categories Background" 
-            className="w-full h-full object-cover"
+           <Image
+            src="https://images.unsplash.com/photo-1560869713-7d0a29430803?q=80&w=2626&auto=format&fit=crop"
+            alt="Categories Background"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-gray-900/50 to-gray-900"></div>
@@ -70,10 +74,13 @@ export default async function CategoriesPage() {
                 className={`group relative overflow-hidden rounded-3xl aspect-[4/5] cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 hover-lift ${index % 3 === 1 ? 'lg:translate-y-12' : ''}`}
               >
                 <div className="absolute inset-0 bg-gray-200">
-                  <img
+                  <Image
                     src={category.image}
                     alt={category.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    sizes="(max-width: 768px) 33vw, (max-width: 1024px) 50vw, 33vw"
+                    quality={75}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
                 </div>
