@@ -279,53 +279,75 @@ function ShopContent() {
                           All Products
                         </button>
 
-                        {/* Parent Categories */}
-                        {categories.filter(c => !c.parent_id && c.id !== 'all').map(parent => {
-                          const subcategories = categories.filter(c => c.parent_id === parent.id);
-                          const isSelected = selectedCategory === parent.slug;
-                          const isChildSelected = subcategories.some(sub => sub.slug === selectedCategory);
-                          const isOpen = isSelected || isChildSelected; // Auto-expand if selected
+                        {/* Parent Categories — ordered to match hamburger menu */}
+                        {(() => {
+                          const SLUG_ORDER = ['wigs', 'bundles', 'closure-frontals', 'products-tools', 'pre-orders'];
+                          const parents = categories.filter(c => !c.parent_id && c.id !== 'all');
+                          const ordered: typeof parents = [];
+                          for (const slug of SLUG_ORDER) {
+                            const found = parents.find(p => p.slug === slug);
+                            if (found) ordered.push(found);
+                          }
+                          parents.forEach(p => { if (!ordered.includes(p)) ordered.push(p); });
 
-                          return (
-                            <div key={parent.id} className="space-y-1">
-                              <button
-                                onClick={() => {
-                                  setSelectedCategory(parent.slug);
-                                  setPage(1);
-                                  // Don't close filter immediately if exploring hierarchy
-                                }}
-                                className={`w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center ${isSelected
-                                  ? 'bg-gray-50 text-gray-900 font-medium'
-                                  : 'text-gray-700 hover:bg-gray-100'
-                                  }`}
-                              >
-                                <span>{parent.name}</span>
-                              </button>
+                          const hairExtensions = categories.find(c => c.slug === 'hair-extensions');
 
-                              {/* Subcategories */}
-                              {subcategories.length > 0 && (
-                                <div className="ml-4 border-l-2 border-gray-100 pl-2 space-y-1">
-                                  {subcategories.map(child => (
-                                    <button
-                                      key={child.id}
-                                      onClick={() => {
-                                        setSelectedCategory(child.slug);
-                                        setPage(1);
-                                        setIsFilterOpen(false);
-                                      }}
-                                      className={`w-full text-left px-4 py-1.5 rounded-lg text-sm transition-colors ${selectedCategory === child.slug
-                                        ? 'text-gray-900 font-medium bg-gray-50'
-                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                        }`}
-                                    >
-                                      {child.name}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                          const items: { key: string; slug: string; name: string; subcategories: any[] }[] = [];
+                          for (const parent of ordered) {
+                            let subs = categories.filter(c => c.parent_id === parent.id);
+                            if (parent.slug === 'bundles') {
+                              subs = subs.filter(c => c.slug !== 'hair-extensions');
+                            }
+                            items.push({ key: parent.id, slug: parent.slug, name: parent.name, subcategories: subs });
+
+                            if (parent.slug === 'closure-frontals' && hairExtensions) {
+                              items.push({ key: hairExtensions.id, slug: hairExtensions.slug, name: 'Hair extensions', subcategories: [] });
+                            }
+                          }
+
+                          return items.map(item => {
+                            const isSelected = selectedCategory === item.slug;
+                            const isChildSelected = item.subcategories.some((sub: any) => sub.slug === selectedCategory);
+
+                            return (
+                              <div key={item.key} className="space-y-1">
+                                <button
+                                  onClick={() => {
+                                    setSelectedCategory(item.slug);
+                                    setPage(1);
+                                  }}
+                                  className={`w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center ${isSelected
+                                    ? 'bg-gray-50 text-gray-900 font-medium'
+                                    : 'text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                >
+                                  <span>{item.name}</span>
+                                </button>
+
+                                {item.subcategories.length > 0 && (
+                                  <div className="ml-4 border-l-2 border-gray-100 pl-2 space-y-1">
+                                    {item.subcategories.map((child: any) => (
+                                      <button
+                                        key={child.id}
+                                        onClick={() => {
+                                          setSelectedCategory(child.slug);
+                                          setPage(1);
+                                          setIsFilterOpen(false);
+                                        }}
+                                        className={`w-full text-left px-4 py-1.5 rounded-lg text-sm transition-colors ${selectedCategory === child.slug
+                                          ? 'text-gray-900 font-medium bg-gray-50'
+                                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                                          }`}
+                                      >
+                                        {child.name}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          });
+                        })()}
                       </div>
                     </div>
 
