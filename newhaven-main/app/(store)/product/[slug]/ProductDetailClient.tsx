@@ -354,6 +354,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                           loop
                           playsInline
                           controls
+                          preload="metadata"
                         />
                       ) : (
                         <Image
@@ -386,12 +387,9 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                           className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${selectedImage === index ? 'border-gray-700 shadow-md' : 'border-gray-200 hover:border-gray-300'}`}
                         >
                           {thumbIsVid ? (
-                            <>
-                              <video src={image} className="w-full h-full object-cover" muted playsInline />
-                              <span className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                <i className="ri-play-circle-fill text-white text-2xl"></i>
-                              </span>
-                            </>
+                            <span className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                              <i className="ri-play-circle-fill text-gray-500 text-3xl"></i>
+                            </span>
                           ) : (
                             <Image
                               src={image}

@@ -37,7 +37,9 @@ export default function LazyImage({
 }: LazyImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [autoplayFailed, setAutoplayFailed] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleLoad = useCallback(() => {
@@ -51,36 +53,49 @@ export default function LazyImage({
     onLoad?.();
   }, [onLoad]);
 
+  const isVideo = src ? isVideoUrl(src) : false;
+
+  useEffect(() => {
+    if (!isVideo || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isVideo]);
+
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !isVisible) return;
 
     const tryPlay = () => {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          setAutoplayFailed(true);
-        });
+      const p = video.play();
+      if (p !== undefined) {
+        p.catch(() => setAutoplayFailed(true));
       }
     };
 
     if (video.readyState >= 2) {
       tryPlay();
     } else {
-      video.addEventListener('loadeddata', tryPlay, { once: true });
-      return () => video.removeEventListener('loadeddata', tryPlay);
+      video.addEventListener('canplay', tryPlay, { once: true });
+      return () => video.removeEventListener('canplay', tryPlay);
     }
-  }, [src]);
+  }, [isVisible, src]);
 
   const handleTapPlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
-    video.play().then(() => {
-      setAutoplayFailed(false);
-    }).catch(() => {});
+    video.play().then(() => setAutoplayFailed(false)).catch(() => {});
   }, []);
-
-  const isVideo = src ? isVideoUrl(src) : false;
 
   if (!src || (hasError && !isVideo)) {
     return (
@@ -103,22 +118,24 @@ export default function LazyImage({
 
   if (isVideo) {
     return (
-      <div className={`relative overflow-hidden ${className}`} style={{ width, height }}>
+      <div ref={containerRef} className={`relative overflow-hidden ${className}`} style={{ width, height }}>
         {!isLoaded && (
           <div className="absolute inset-0 bg-gray-200 animate-pulse z-10"></div>
         )}
-        <video
-          ref={videoRef}
-          src={src}
-          muted
-          autoPlay
-          loop
-          playsInline
-          preload="auto"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          onLoadedData={handleLoad}
-          onError={handleError}
-        />
+        {isVisible && (
+          <video
+            ref={videoRef}
+            src={src}
+            muted
+            autoPlay
+            loop
+            playsInline
+            preload="metadata"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoadedData={handleLoad}
+            onError={handleError}
+          />
+        )}
         {isLoaded && autoplayFailed && (
           <button
             onClick={handleTapPlay}
