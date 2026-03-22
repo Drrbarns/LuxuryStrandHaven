@@ -15,14 +15,21 @@ export default async function CategoriesPage() {
       description,
       image_url,
       position,
+      parent_id,
       metadata
     `)
     .eq('status', 'active')
     .order('position', { ascending: true });
 
-  const categoriesData = (allCategories || []).filter(
-    (cat: any) => cat.metadata?.featured === true
-  );
+  const CATEGORY_ORDER = ['wigs', 'bundles', 'closure-frontals', 'braiding-extensions', 'products-tools', 'pre-orders'];
+  const parentCategories = (allCategories || []).filter((c: any) => !c.parent_id);
+  const ordered: typeof parentCategories = [];
+  for (const slug of CATEGORY_ORDER) {
+    const found = parentCategories.find((c: any) => c.slug === slug);
+    if (found) ordered.push(found);
+  }
+  parentCategories.forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+  const categoriesData = ordered;
 
   // Palette to cycle through for visual variety since DB doesn't have colors
   const palette = [
