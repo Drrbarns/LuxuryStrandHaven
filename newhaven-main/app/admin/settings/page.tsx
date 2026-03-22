@@ -156,9 +156,9 @@ export default function SettingsPage() {
         try {
             const ext = file.name.split('.').pop() || 'jpg';
             const path = `homepage/hero-slide-${Date.now()}.${ext}`;
-            const { error: upErr } = await supabase.storage.from('images').upload(path, file, { upsert: true });
+            const { error: upErr } = await supabase.storage.from('site-assets').upload(path, file, { upsert: true });
             if (upErr) throw upErr;
-            const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(path);
+            const { data: { publicUrl } } = supabase.storage.from('site-assets').getPublicUrl(path);
             const updated = [...heroSlides];
             updated[idx] = publicUrl;
             setHeroSlides(updated);
