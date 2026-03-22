@@ -291,7 +291,6 @@ function ShopContent() {
                             const found = parents.find(p => p.slug === slug);
                             if (found) ordered.push(found);
                           }
-                          parents.forEach(p => { if (!ordered.includes(p)) ordered.push(p); });
 
                           const items: { key: string; slug: string; name: string; subcategories: any[] }[] = [];
                           for (const parent of ordered) {
