@@ -40,7 +40,7 @@ export default function Header() {
   const showWishlist = getSetting('header_show_wishlist') !== 'false';
   const showCart = getSetting('header_show_cart') !== 'false';
   const showAccount = getSetting('header_show_account') !== 'false';
-  const navLinks = getSettingJSON<{ label: string; href: string }[]>('header_nav_links_json', [
+  const savedNavLinks = getSettingJSON<{ label: string; href: string }[]>('header_nav_links_json', [
     { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
     { label: 'Categories', href: '/categories' },
@@ -48,6 +48,10 @@ export default function Header() {
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' }
   ]);
+  const navLinks = [
+    ...(savedNavLinks.some(l => l.href === '/') ? [] : [{ label: 'Home', href: '/' }]),
+    ...savedNavLinks,
+  ];
 
   useEffect(() => {
     const updateWishlistCount = () => {
