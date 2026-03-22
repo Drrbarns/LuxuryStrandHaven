@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { useCMS } from '@/context/CMSContext';
 import ProductCard, { type ColorVariant } from '@/components/ProductCard';
 import { getColorHex } from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
@@ -12,6 +13,7 @@ import AnimatedSection from '@/components/AnimatedSection';
 
 function ShopContent() {
   usePageTitle('Shop All Products');
+  const { getSetting } = useCMS();
   const searchParams = useSearchParams();
 
   // State
@@ -228,9 +230,9 @@ function ShopContent() {
   return (
     <main className="min-h-screen bg-white">
       <PageHero
-        title="Shop All Products"
-        subtitle="Discover our curated collection of premium goods"
-        backgroundImage="/hero8.jpeg"
+        title={getSetting('shop_hero_title') || 'Shop All Products'}
+        subtitle={getSetting('shop_hero_subtitle') || 'Discover our curated collection of premium goods'}
+        backgroundImage={getSetting('shop_hero_image') || '/hero8.jpeg'}
       />
 
       {/* Mobile Filter Toggle */}

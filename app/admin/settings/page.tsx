@@ -492,6 +492,14 @@ export default function SettingsPage() {
                             </div>
                         </SectionCard>
 
+                        <SectionCard title="Shop Page" icon="ri-shopping-bag-line" description="Customize the Shop page hero banner">
+                            <div className="grid md:grid-cols-2 gap-5">
+                                <FieldGroup label="Hero Title"><input type="text" value={val('shop_hero_title')} onChange={e => set('shop_hero_title', e.target.value)} className={inputClass} placeholder="Shop All Products" /></FieldGroup>
+                                <FieldGroup label="Hero Subtitle"><input type="text" value={val('shop_hero_subtitle')} onChange={e => set('shop_hero_subtitle', e.target.value)} className={inputClass} placeholder="Discover our curated collection of premium goods" /></FieldGroup>
+                            </div>
+                            <ImageUpload label="Hero Background Image" description="Background image for the shop page hero (recommended: 1920×600)" value={val('shop_hero_image')} onChange={(url) => set('shop_hero_image', url)} folder="pages" previewHeight={120} />
+                        </SectionCard>
+
                         <SectionCard title="Contact Page" icon="ri-mail-send-line" description="Customize the Contact Us page">
                             <div className="grid md:grid-cols-2 gap-5">
                                 <FieldGroup label="Hero Title"><input type="text" value={val('contact_hero_title')} onChange={e => set('contact_hero_title', e.target.value)} className={inputClass} /></FieldGroup>
