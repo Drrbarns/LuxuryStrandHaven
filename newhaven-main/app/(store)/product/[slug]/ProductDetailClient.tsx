@@ -663,7 +663,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
             {activeTab === 'description' && (
               <div className="prose max-w-none">
-                <p className="text-gray-700 text-lg leading-relaxed">{product.description}</p>
+                <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-line">{product.description}</p>
               </div>
             )}
 
