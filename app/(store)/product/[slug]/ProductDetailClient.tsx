@@ -442,8 +442,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                   </div>
                 </div>
 
-                <p className="text-gray-600 leading-relaxed mb-6 text-sm">{product.description}</p>
-
                 {/* Product Option Selectors */}
                 {allOptionLabels.filter(o => o.values.length > 0).some(o => o.isColor) && (
                   <div className="mb-5">

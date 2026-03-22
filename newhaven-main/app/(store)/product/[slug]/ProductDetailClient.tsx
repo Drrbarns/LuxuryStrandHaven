@@ -135,7 +135,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
             `related:${productData.category_id}:${productData.id}`,
             (() => supabase
               .from('products')
-              .select('*, product_images(url, position), product_variants(id, name, price, quantity)')
+              .select('*, product_images(url, position), product_variants(id, name, price, compare_at_price, quantity)')
               .eq('category_id', productData.category_id)
               .neq('id', productData.id)
               .limit(4)) as any,
@@ -191,7 +191,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
   // Map of default key -> label
   const defaultKeyToLabel: Record<string, string> = {
-    color: 'Color', lace_type: 'Lace Type', lace_length: 'Lace Length',
+    color: 'Color', lace_type: 'Lace Type', lace_length: 'Lace Size',
     length: 'Length', wig_size: 'Wig Size', density: 'Density',
   };
 
@@ -441,8 +441,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     </div>
                   </div>
                 </div>
-
-                <p className="text-gray-600 leading-relaxed mb-6 text-sm">{product.description}</p>
 
                 {/* Product Option Selectors */}
                 {allOptionLabels.filter(o => o.values.length > 0).some(o => o.isColor) && (
