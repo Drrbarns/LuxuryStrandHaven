@@ -510,6 +510,14 @@ export default function SettingsPage() {
             case 'header-footer':
                 return (
                     <div className="space-y-6">
+                        <SectionCard title="Announcement Bar" icon="ri-megaphone-line" description="The thin bar at the very top of the page">
+                            <FieldGroup label="Text" description="The message displayed in the announcement bar"><input type="text" value={val('announcement_bar_text')} onChange={e => set('announcement_bar_text', e.target.value)} className={inputClass} placeholder="Free Store Pickup Available | Order Online, Pick Up Today" /></FieldGroup>
+                            <div className="grid md:grid-cols-2 gap-5">
+                                <ColorInput label="Background Color" settingKey="announcement_bar_bg" />
+                                <ColorInput label="Text Color" settingKey="announcement_bar_color" />
+                            </div>
+                        </SectionCard>
+
                         <SectionCard title="Header" icon="ri-layout-top-line" description="Configure the site header navigation and logo">
                             <div className="grid md:grid-cols-2 gap-5">
                                 <FieldGroup label="Logo Height (px)"><input type="number" value={val('header_logo_height')} onChange={e => set('header_logo_height', e.target.value)} className={inputClass} placeholder="40" /></FieldGroup>
