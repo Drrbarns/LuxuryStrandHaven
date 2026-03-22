@@ -27,6 +27,7 @@ function ShopContent() {
   const [sortBy, setSortBy] = useState('popular');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [expandedParent, setExpandedParent] = useState<string | null>(null);
   const productsPerPage = 9;
 
   // Initialize from URL params
@@ -306,26 +307,35 @@ function ShopContent() {
                           }
 
                           return items.map(item => {
+                            const hasSubs = item.subcategories.length > 0;
                             const isSelected = selectedCategory === item.slug;
                             const isChildSelected = item.subcategories.some((sub: any) => sub.slug === selectedCategory);
+                            const isOpen = expandedParent === item.slug || isChildSelected;
 
                             return (
-                              <div key={item.key} className="space-y-1">
+                              <div key={item.key}>
                                 <button
                                   onClick={() => {
+                                    if (hasSubs) {
+                                      setExpandedParent(isOpen ? null : item.slug);
+                                    }
                                     setSelectedCategory(item.slug);
                                     setPage(1);
+                                    if (!hasSubs) setIsFilterOpen(false);
                                   }}
-                                  className={`w-full text-left px-4 py-2 rounded-lg transition-colors flex justify-between items-center ${isSelected
-                                    ? 'bg-gray-50 text-gray-900 font-medium'
-                                    : 'text-gray-700 hover:bg-gray-100'
+                                  className={`w-full text-left px-4 py-2.5 rounded-lg transition-colors flex justify-between items-center ${isSelected || isChildSelected
+                                    ? 'bg-gray-100 text-gray-900 font-medium'
+                                    : 'text-gray-700 hover:bg-gray-50'
                                     }`}
                                 >
                                   <span>{item.name}</span>
+                                  {hasSubs && (
+                                    <i className={`ri-arrow-down-s-line text-lg text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}></i>
+                                  )}
                                 </button>
 
-                                {item.subcategories.length > 0 && (
-                                  <div className="ml-4 border-l-2 border-gray-100 pl-2 space-y-1">
+                                {hasSubs && isOpen && (
+                                  <div className="ml-4 border-l-2 border-gray-200 pl-2 mt-1 space-y-0.5">
                                     {item.subcategories.map((child: any) => (
                                       <button
                                         key={child.id}
@@ -334,7 +344,7 @@ function ShopContent() {
                                           setPage(1);
                                           setIsFilterOpen(false);
                                         }}
-                                        className={`w-full text-left px-4 py-1.5 rounded-lg text-sm transition-colors ${selectedCategory === child.slug
+                                        className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors ${selectedCategory === child.slug
                                           ? 'text-gray-900 font-medium bg-gray-50'
                                           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                           }`}
