@@ -43,6 +43,7 @@ export default function Header() {
   const navLinks = getSettingJSON<{ label: string; href: string }[]>('header_nav_links_json', [
     { label: 'Shop', href: '/shop' },
     { label: 'Categories', href: '/categories' },
+    { label: 'Academia', href: '/academia' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' }
   ]);
