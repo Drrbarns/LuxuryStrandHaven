@@ -229,12 +229,6 @@ export default function AdminLayout({
     },
 
     {
-      title: 'Homepage',
-      icon: 'ri-home-gear-line',
-      path: '/admin/homepage',
-      moduleId: 'homepage'
-    },
-    {
       title: 'Academia',
       icon: 'ri-graduation-cap-line',
       path: '/admin/academia'

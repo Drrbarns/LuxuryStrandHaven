@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { defaultSettings } from '@/context/CMSContext';
 import ImageUpload from '@/components/admin/ImageUpload';
+
+const DEFAULT_HERO_SLIDES = ['/brand-hero1.png', '/brand-hero2.png', '/brand-hero3.png'];
 
 // ── Types ──────────────────────────────────────────────────────────
 type TabId = 'general' | 'appearance' | 'homepage' | 'pages' | 'header-footer' | 'seo' | 'integrations';
@@ -60,8 +62,12 @@ export default function SettingsPage() {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-    const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
-    const [maintenanceToggling, setMaintenanceToggling] = useState(false);
+
+    // Hero slideshow state
+    const [heroSlides, setHeroSlides] = useState<string[]>(DEFAULT_HERO_SLIDES);
+    const [uploadingSlide, setUploadingSlide] = useState<number | null>(null);
+    const slideFileRef = useRef<HTMLInputElement>(null);
+    const [pendingSlideIdx, setPendingSlideIdx] = useState<number | null>(null);
 
     // Load settings from DB
     const fetchSettings = useCallback(async () => {
@@ -73,7 +79,17 @@ export default function SettingsPage() {
                 map[row.key] = typeof row.value === 'string' ? row.value : JSON.stringify(row.value);
             });
             setSettings(map);
-            setMaintenanceEnabled(map['maintenance_mode'] === 'true');
+
+            // Parse hero slides
+            if (map.hero_slides) {
+                try {
+                    const raw = map.hero_slides;
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((s: string) => s)) {
+                        setHeroSlides(parsed.filter((s: string) => s));
+                    }
+                } catch { /* keep defaults */ }
+            }
         } catch (err) {
             console.error('Failed to load settings:', err);
         } finally {
@@ -96,7 +112,6 @@ export default function SettingsPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            // Upsert each setting
             const entries = Object.entries(settings).filter(([_, v]) => v !== undefined);
             for (const [key, value] of entries) {
                 await supabase.from('store_settings').upsert(
@@ -104,6 +119,11 @@ export default function SettingsPage() {
                     { onConflict: 'key' }
                 );
             }
+            // Save hero slides as JSON array
+            await supabase.from('store_settings').upsert(
+                { key: 'hero_slides', value: JSON.stringify(heroSlides), updated_at: new Date().toISOString() },
+                { onConflict: 'key' }
+            );
             setSaved(true);
             setTimeout(() => setSaved(false), 3000);
         } catch (err) {
@@ -111,25 +131,6 @@ export default function SettingsPage() {
             alert('Failed to save settings. Please try again.');
         } finally {
             setSaving(false);
-        }
-    };
-
-    // Instantly toggle maintenance mode (no need to hit Save Changes)
-    const handleToggleMaintenance = async () => {
-        const newValue = !maintenanceEnabled;
-        setMaintenanceToggling(true);
-        try {
-            await supabase.from('store_settings').upsert(
-                { key: 'maintenance_mode', value: newValue ? 'true' : 'false', updated_at: new Date().toISOString() },
-                { onConflict: 'key' }
-            );
-            setMaintenanceEnabled(newValue);
-            setSettings(prev => ({ ...prev, maintenance_mode: newValue ? 'true' : 'false' }));
-        } catch (err) {
-            console.error('Failed to toggle maintenance mode:', err);
-            alert('Failed to update maintenance mode. Please try again.');
-        } finally {
-            setMaintenanceToggling(false);
         }
     };
 
@@ -144,6 +145,47 @@ export default function SettingsPage() {
 
     const setJSONList = (key: string, list: any[]) => {
         set(key, JSON.stringify(list));
+    };
+
+    // ── Hero Slideshow Handlers ────────────────────────────────────
+    const handleSlideUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || pendingSlideIdx === null) return;
+        const idx = pendingSlideIdx;
+        setUploadingSlide(idx);
+        try {
+            const ext = file.name.split('.').pop() || 'jpg';
+            const path = `homepage/hero-slide-${Date.now()}.${ext}`;
+            const { error: upErr } = await supabase.storage.from('images').upload(path, file, { upsert: true });
+            if (upErr) throw upErr;
+            const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(path);
+            const updated = [...heroSlides];
+            updated[idx] = publicUrl;
+            setHeroSlides(updated);
+            setSaved(false);
+        } catch (err) {
+            console.error('Upload failed:', err);
+            alert('Failed to upload image. Please try again.');
+        } finally {
+            setUploadingSlide(null);
+            setPendingSlideIdx(null);
+            if (slideFileRef.current) slideFileRef.current.value = '';
+        }
+    };
+
+    const triggerSlideUpload = (idx: number) => {
+        setPendingSlideIdx(idx);
+        setTimeout(() => slideFileRef.current?.click(), 0);
+    };
+
+    const addSlide = () => { setHeroSlides(prev => [...prev, '']); setSaved(false); };
+    const removeSlide = (idx: number) => { setHeroSlides(prev => prev.filter((_, i) => i !== idx)); setSaved(false); };
+    const moveSlide = (from: number, to: number) => {
+        if (to < 0 || to >= heroSlides.length) return;
+        const arr = [...heroSlides];
+        [arr[from], arr[to]] = [arr[to], arr[from]];
+        setHeroSlides(arr);
+        setSaved(false);
     };
 
     // ── Color Picker Input ─────────────────────────────────────────
@@ -255,50 +297,11 @@ export default function SettingsPage() {
             case 'general':
                 return (
                     <div className="space-y-6">
-                        {/* ── Maintenance Mode ── */}
-                        <div className={`rounded-xl border-2 p-5 transition-colors ${maintenanceEnabled ? 'bg-amber-50 border-amber-400' : 'bg-green-50 border-green-300'}`}>
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="flex items-start gap-4">
-                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${maintenanceEnabled ? 'bg-amber-100' : 'bg-green-100'}`}>
-                                        <i className={`text-2xl ${maintenanceEnabled ? 'ri-tools-fill text-amber-600' : 'ri-store-2-fill text-green-600'}`}></i>
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <h3 className="text-base font-bold text-gray-900">Store Status</h3>
-                                            <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${maintenanceEnabled ? 'bg-amber-200 text-amber-800' : 'bg-green-200 text-green-800'}`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${maintenanceEnabled ? 'bg-amber-500' : 'bg-green-500 animate-pulse'}`}></span>
-                                                {maintenanceEnabled ? 'MAINTENANCE' : 'LIVE'}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-600">
-                                            {maintenanceEnabled
-                                                ? 'Your store is offline. Customers see the maintenance page. The admin panel remains fully accessible.'
-                                                : 'Your store is live and visible to all customers. Toggle to take it offline for updates.'}
-                                        </p>
-                                    </div>
-                                </div>
-                                {/* Toggle switch */}
-                                <button
-                                    onClick={handleToggleMaintenance}
-                                    disabled={maintenanceToggling}
-                                    className={`relative flex-shrink-0 w-14 h-7 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 ${maintenanceEnabled ? 'bg-amber-500 focus:ring-amber-400' : 'bg-green-500 focus:ring-green-400'} ${maintenanceToggling ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-                                    title={maintenanceEnabled ? 'Click to bring store back online' : 'Click to enable maintenance mode'}
-                                >
-                                    <span className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 flex items-center justify-center ${maintenanceEnabled ? 'translate-x-7' : 'translate-x-0'}`}>
-                                        {maintenanceToggling
-                                            ? <span className="w-3 h-3 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></span>
-                                            : <i className={`text-xs ${maintenanceEnabled ? 'ri-tools-line text-amber-500' : 'ri-store-2-line text-green-500'}`}></i>
-                                        }
-                                    </span>
-                                </button>
-                            </div>
-                            {maintenanceEnabled && (
-                                <div className="mt-4 pt-4 border-t border-amber-200 flex items-center gap-2 text-sm text-amber-800">
-                                    <i className="ri-information-line text-base"></i>
-                                    <span>Toggle off to bring the store back online instantly. No save needed — changes apply immediately.</span>
-                                </div>
-                            )}
-                        </div>
+                        <SectionCard title="Maintenance Mode" icon="ri-tools-line" description="When enabled, the storefront shows a maintenance page. Use the sidebar toggle to enable/disable. Admin always remains accessible.">
+                            <FieldGroup label="Countdown Duration (minutes)" description="How long the countdown displays on the maintenance page (default: 30)">
+                                <input type="number" min="1" max="1440" value={val('maintenance_countdown_minutes') || '30'} onChange={e => set('maintenance_countdown_minutes', e.target.value || '30')} className={inputClass} placeholder="30" />
+                            </FieldGroup>
+                        </SectionCard>
 
                         <SectionCard title="Store Information" icon="ri-store-2-line" description="Basic details about your store">
                             <div className="grid md:grid-cols-2 gap-5">
@@ -330,6 +333,8 @@ export default function SettingsPage() {
                                 <FieldGroup label="Snapchat"><input type="url" value={val('social_snapchat')} onChange={e => set('social_snapchat', e.target.value)} className={inputClass} placeholder="https://snapchat.com/add/..." /></FieldGroup>
                                 <FieldGroup label="YouTube"><input type="url" value={val('social_youtube')} onChange={e => set('social_youtube', e.target.value)} className={inputClass} placeholder="https://youtube.com/..." /></FieldGroup>
                                 <FieldGroup label="WhatsApp Number"><input type="text" value={val('social_whatsapp')} onChange={e => set('social_whatsapp', e.target.value)} className={inputClass} placeholder="+1234567890" /></FieldGroup>
+                                <FieldGroup label="Pinterest"><input type="url" value={val('social_pinterest')} onChange={e => set('social_pinterest', e.target.value)} className={inputClass} placeholder="https://pinterest.com/..." /></FieldGroup>
+                                <FieldGroup label="LinkedIn"><input type="url" value={val('social_linkedin')} onChange={e => set('social_linkedin', e.target.value)} className={inputClass} placeholder="https://linkedin.com/..." /></FieldGroup>
                             </div>
                         </SectionCard>
                     </div>
@@ -365,12 +370,57 @@ export default function SettingsPage() {
             case 'homepage':
                 return (
                     <div className="space-y-6">
-                        <SectionCard title="Hero Section" icon="ri-image-2-line" description="The main banner visitors see first">
+                        {/* Hidden file input for slide uploads */}
+                        <input ref={slideFileRef} type="file" accept="image/*" className="hidden" onChange={handleSlideUpload} />
+
+                        <SectionCard title="Hero Slideshow" icon="ri-slideshow-3-line" description="Background images that rotate in the hero section">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {heroSlides.map((url, idx) => (
+                                    <div key={idx} className="relative group rounded-xl border-2 border-gray-200 overflow-hidden bg-gray-100 aspect-video">
+                                        {url ? (
+                                            <img src={url} alt={`Slide ${idx + 1}`} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                <i className="ri-image-add-line text-3xl"></i>
+                                            </div>
+                                        )}
+
+                                        {uploadingSlide === idx && (
+                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                <div className="w-8 h-8 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            </div>
+                                        )}
+
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                                            <button onClick={() => triggerSlideUpload(idx)} className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow text-gray-700 hover:text-gray-900" title="Upload image">
+                                                <i className="ri-upload-2-line text-sm"></i>
+                                            </button>
+                                            <button onClick={() => moveSlide(idx, idx - 1)} disabled={idx === 0} className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow text-gray-700 hover:text-gray-900 disabled:opacity-30" title="Move left">
+                                                <i className="ri-arrow-left-s-line text-sm"></i>
+                                            </button>
+                                            <button onClick={() => moveSlide(idx, idx + 1)} disabled={idx === heroSlides.length - 1} className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow text-gray-700 hover:text-gray-900 disabled:opacity-30" title="Move right">
+                                                <i className="ri-arrow-right-s-line text-sm"></i>
+                                            </button>
+                                            <button onClick={() => removeSlide(idx)} className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow text-white hover:bg-red-600" title="Remove slide">
+                                                <i className="ri-delete-bin-line text-sm"></i>
+                                            </button>
+                                        </div>
+
+                                        <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">{idx + 1}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={addSlide} className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-gray-700 bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors">
+                                <i className="ri-add-line"></i> Add Slide
+                            </button>
+                            <p className="text-xs text-gray-500 mt-2">Recommended size: 1920 x 1080. Upload at least 2 slides for a rotating effect.</p>
+                        </SectionCard>
+
+                        <SectionCard title="Hero Text & Buttons" icon="ri-text" description="The headline and call-to-action overlaying the hero">
                             <FieldGroup label="Tag Line" description="Small text above the headline"><input type="text" value={val('hero_tag_text')} onChange={e => set('hero_tag_text', e.target.value)} className={inputClass} /></FieldGroup>
                             <FieldGroup label="Headline"><input type="text" value={val('hero_headline')} onChange={e => set('hero_headline', e.target.value)} className={inputClass} /></FieldGroup>
                             <FieldGroup label="Sub-headline"><textarea rows={2} value={val('hero_subheadline')} onChange={e => set('hero_subheadline', e.target.value)} className={textareaClass} /></FieldGroup>
-                            <ImageUpload label="Background Image" description="Fallback when no video (recommended: 1920×1080)" value={val('hero_image')} onChange={(url) => set('hero_image', url)} folder="homepage" previewHeight={140} />
-                            <FieldGroup label="Hero Video URL" description="MP4 or WebM URL for full-screen video hero. Leave empty to use image only."><input type="url" value={val('hero_video')} onChange={e => set('hero_video', e.target.value)} className={inputClass} placeholder="https://..." /></FieldGroup>
+                            <FieldGroup label="Hero Video URL" description="MP4 or WebM URL for full-screen video hero. Leave empty to use slideshow."><input type="url" value={val('hero_video')} onChange={e => set('hero_video', e.target.value)} className={inputClass} placeholder="https://..." /></FieldGroup>
 
                             <div className="grid md:grid-cols-2 gap-5">
                                 <FieldGroup label="Primary Button Text"><input type="text" value={val('hero_primary_btn_text')} onChange={e => set('hero_primary_btn_text', e.target.value)} className={inputClass} /></FieldGroup>
@@ -418,6 +468,7 @@ export default function SettingsPage() {
                                 <FieldGroup label="Hero Title"><input type="text" value={val('about_hero_title')} onChange={e => set('about_hero_title', e.target.value)} className={inputClass} /></FieldGroup>
                                 <FieldGroup label="Hero Subtitle"><input type="text" value={val('about_hero_subtitle')} onChange={e => set('about_hero_subtitle', e.target.value)} className={inputClass} /></FieldGroup>
                             </div>
+                            <ImageUpload label="Hero Banner Image" description="Background image for the About page hero section" value={val('about_hero_image')} onChange={(url) => set('about_hero_image', url)} folder="pages" previewHeight={120} />
                             <FieldGroup label="Story Title"><input type="text" value={val('about_story_title')} onChange={e => set('about_story_title', e.target.value)} className={inputClass} /></FieldGroup>
                             <FieldGroup label="Story Content" description="The main story paragraphs. Use line breaks to separate."><textarea rows={6} value={val('about_story_content')} onChange={e => set('about_story_content', e.target.value)} className={textareaClass} /></FieldGroup>
                             <ImageUpload label="Story Image" description="Image displayed alongside your story" value={val('about_story_image')} onChange={(url) => set('about_story_image', url)} folder="pages" previewHeight={120} />

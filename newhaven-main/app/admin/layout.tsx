@@ -206,12 +206,6 @@ export default function AdminLayout({
     },
 
     {
-      title: 'Homepage',
-      icon: 'ri-home-gear-line',
-      path: '/admin/homepage',
-      moduleId: 'homepage'
-    },
-    {
       title: 'Blog',
       icon: 'ri-article-line',
       path: '/admin/blog',
