@@ -101,11 +101,9 @@ export default function Header() {
         return { label, href: `/shop?category=${parent.slug}` };
       };
 
-      const hairExtensions = data.find(c => c.slug === 'hair-extensions');
-
       const orderedItems: MobileNavItem[] = [{ label: 'Shop', href: '/shop' }];
       const wigsItem = makeParentItem('wigs', 'Wigs');
-      const bundlesItem = makeParentItem('bundles', 'Bundles', { excludeChildSlug: 'hair-extensions' });
+      const bundlesItem = makeParentItem('bundles', 'Bundles');
       const closureItem = makeParentItem('closure-frontals', 'Closure and frontal');
       const toolsItem = makeParentItem('products-tools', 'Products and tools');
       const preOrderItem = makeParentItem('pre-orders', 'Pre order');
@@ -113,7 +111,6 @@ export default function Header() {
       if (wigsItem) orderedItems.push(wigsItem);
       if (bundlesItem) orderedItems.push(bundlesItem);
       if (closureItem) orderedItems.push(closureItem);
-      if (hairExtensions) orderedItems.push({ label: 'Hair extensions', href: `/shop?category=${hairExtensions.slug}` });
       if (toolsItem) orderedItems.push(toolsItem);
       if (preOrderItem) orderedItems.push(preOrderItem);
       orderedItems.push({ label: 'Academia', href: '/academia' });

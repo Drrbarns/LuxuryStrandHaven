@@ -82,6 +82,7 @@ function ShopContent() {
                   .map(c => c.id);
                 targetCategoryIds = [categoryObj.id, ...childIds];
 
+                // Fetch product IDs linked to these categories via extra-category links
                 const { data: linkRows } = await supabase
                   .from('product_category_links')
                   .select('product_id')
@@ -109,6 +110,7 @@ function ShopContent() {
             // Category Filter: primary category OR extra linked categories
             if (selectedCategory !== 'all') {
               if (extraProductIds.length > 0 && targetCategoryIds.length > 0) {
+                // products whose primary category is in targets OR whose id is in extra links
                 query = query.or(
                   `category_id.in.(${targetCategoryIds.join(',')}),id.in.(${extraProductIds.join(',')})`
                 );
@@ -291,19 +293,10 @@ function ShopContent() {
                           }
                           parents.forEach(p => { if (!ordered.includes(p)) ordered.push(p); });
 
-                          const hairExtensions = categories.find(c => c.slug === 'hair-extensions');
-
                           const items: { key: string; slug: string; name: string; subcategories: any[] }[] = [];
                           for (const parent of ordered) {
-                            let subs = categories.filter(c => c.parent_id === parent.id);
-                            if (parent.slug === 'bundles') {
-                              subs = subs.filter(c => c.slug !== 'hair-extensions');
-                            }
+                            const subs = categories.filter(c => c.parent_id === parent.id);
                             items.push({ key: parent.id, slug: parent.slug, name: parent.name, subcategories: subs });
-
-                            if (parent.slug === 'closure-frontals' && hairExtensions) {
-                              items.push({ key: hairExtensions.id, slug: hairExtensions.slug, name: 'Hair extensions', subcategories: [] });
-                            }
                           }
 
                           return items.map(item => {

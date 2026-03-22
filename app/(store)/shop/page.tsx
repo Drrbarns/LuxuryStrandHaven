@@ -293,19 +293,10 @@ function ShopContent() {
                           }
                           parents.forEach(p => { if (!ordered.includes(p)) ordered.push(p); });
 
-                          const hairExtensions = categories.find(c => c.slug === 'hair-extensions');
-
                           const items: { key: string; slug: string; name: string; subcategories: any[] }[] = [];
                           for (const parent of ordered) {
-                            let subs = categories.filter(c => c.parent_id === parent.id);
-                            if (parent.slug === 'bundles') {
-                              subs = subs.filter(c => c.slug !== 'hair-extensions');
-                            }
+                            const subs = categories.filter(c => c.parent_id === parent.id);
                             items.push({ key: parent.id, slug: parent.slug, name: parent.name, subcategories: subs });
-
-                            if (parent.slug === 'closure-frontals' && hairExtensions) {
-                              items.push({ key: hairExtensions.id, slug: hairExtensions.slug, name: 'Hair extensions', subcategories: [] });
-                            }
                           }
 
                           return items.map(item => {
