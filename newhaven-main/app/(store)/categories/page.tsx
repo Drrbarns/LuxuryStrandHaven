@@ -6,7 +6,7 @@ import ScrollReveal from '@/components/ScrollReveal';
 export const revalidate = 0; // Ensure fresh data on every visit
 
 export default async function CategoriesPage() {
-  const { data: categoriesData } = await supabase
+  const { data: allCategories } = await supabase
     .from('categories')
     .select(`
       id,
@@ -14,10 +14,15 @@ export default async function CategoriesPage() {
       slug,
       description,
       image_url,
-      position
+      position,
+      metadata
     `)
     .eq('status', 'active')
     .order('position', { ascending: true });
+
+  const categoriesData = (allCategories || []).filter(
+    (cat: any) => cat.metadata?.featured === true
+  );
 
   // Palette to cycle through for visual variety since DB doesn't have colors
   const palette = [
@@ -66,7 +71,7 @@ export default async function CategoriesPage() {
 
       <ScrollReveal direction="up" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 lg:-mt-32 relative z-20 pb-24">
         {categories.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
             {categories.map((category, index) => (
               <Link
                 key={category.id}
