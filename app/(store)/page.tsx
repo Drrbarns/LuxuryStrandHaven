@@ -56,13 +56,39 @@ export default function Home() {
   // ── CMS-driven config ────────────────────────────────────────────
   const heroHeadline = getSetting('hero_headline') || 'Your Hair, Your Crown';
   const heroSubheadline = getSetting('hero_subheadline') || 'Premium wigs, bundles & extensions — crafted for women who demand nothing but the best.';
-  const HERO_SLIDES = ['/brand-hero1.png', '/brand-hero2.png', '/brand-hero3.png'];
+
+  const DEFAULT_SLIDES = ['/brand-hero1.png', '/brand-hero2.png', '/brand-hero3.png'];
+  const [heroSlides, setHeroSlides] = useState<string[]>(DEFAULT_SLIDES);
   const HERO_INTERVAL_MS = 3000;
   const [heroIndex, setHeroIndex] = useState(0);
+
   useEffect(() => {
-    const t = setInterval(() => setHeroIndex((i) => (i + 1) % HERO_SLIDES.length), HERO_INTERVAL_MS);
+    async function loadSlides() {
+      try {
+        const { data } = await supabase
+          .from('store_settings')
+          .select('value')
+          .eq('key', 'hero_slides')
+          .single();
+        if (data?.value) {
+          const raw = typeof data.value === 'string' ? data.value : JSON.stringify(data.value);
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((s: string) => s)) {
+            setHeroSlides(parsed.filter((s: string) => s));
+          }
+        }
+      } catch {
+        // keep defaults
+      }
+    }
+    loadSlides();
+  }, []);
+
+  useEffect(() => {
+    if (heroSlides.length <= 1) return;
+    const t = setInterval(() => setHeroIndex((i) => (i + 1) % heroSlides.length), HERO_INTERVAL_MS);
     return () => clearInterval(t);
-  }, [HERO_SLIDES.length]);
+  }, [heroSlides.length]);
   const heroPrimaryText = getSetting('hero_primary_btn_text');
   const heroPrimaryLink = getSetting('hero_primary_btn_link') || '/shop';
   const heroSecondaryText = getSetting('hero_secondary_btn_text');
@@ -112,7 +138,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0 bg-black">
           {/* Pre-load off-screen so Next.js optimises all slides eagerly */}
           <div className="sr-only" aria-hidden>
-            {HERO_SLIDES.map((src) => (
+            {heroSlides.map((src) => (
               <Image key={`preload-${src}`} src={src} width={1} height={1} priority alt="" quality={100} />
             ))}
           </div>
@@ -129,7 +155,7 @@ export default function Home() {
               className="absolute inset-0"
             >
               <Image
-                src={HERO_SLIDES[heroIndex]}
+                src={heroSlides[heroIndex]}
                 fill
                 className="object-cover object-top"
                 alt={`Luxury Strand Haven hero ${heroIndex + 1}`}
@@ -223,7 +249,7 @@ export default function Home() {
 
         {/* Slide dots */}
         <div className="absolute bottom-6 right-6 z-10 flex gap-2">
-          {HERO_SLIDES.map((_, i) => (
+          {heroSlides.map((_, i) => (
             <button
               key={i}
               onClick={() => setHeroIndex(i)}
