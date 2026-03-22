@@ -33,6 +33,22 @@ const SETTING_KEYS = [
   'feature4_icon',
   'feature4_title',
   'feature4_desc',
+  'about_hero_title',
+  'about_hero_subtitle',
+  'about_hero_image',
+  'about_story_title',
+  'about_story_content',
+  'about_story_image',
+  'about_founder_name',
+  'about_founder_title',
+  'about_mission1_title',
+  'about_mission1_content',
+  'about_mission2_title',
+  'about_mission2_content',
+  'about_values_title',
+  'about_values_subtitle',
+  'about_cta_title',
+  'about_cta_subtitle',
 ];
 
 const DEFAULT_SLIDES = ['/brand-hero1.png', '/brand-hero2.png', '/brand-hero3.png'];
@@ -44,6 +60,7 @@ export default function HomepageConfigPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploadingSlide, setUploadingSlide] = useState<number | null>(null);
+  const [uploadingAbout, setUploadingAbout] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingSlideIndex, setPendingSlideIndex] = useState<number | null>(null);
 
@@ -181,6 +198,26 @@ export default function HomepageConfigPage() {
     [arr[from], arr[to]] = [arr[to], arr[from]];
     setHeroSlides(arr);
     setSaved(false);
+  };
+
+  const handleAboutImageUpload = async (file: File, settingKey: string, tag: string) => {
+    if (file.size > 10 * 1024 * 1024) { alert('Max 10MB'); return; }
+    setUploadingAbout(tag);
+    try {
+      const ext = file.name.split('.').pop()?.toLowerCase() || 'png';
+      const filePath = `about/${tag}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('site-assets')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('site-assets').getPublicUrl(filePath);
+      updateField(settingKey, data.publicUrl);
+    } catch (err: any) {
+      console.error('Upload failed:', err);
+      alert('Upload failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setUploadingAbout(null);
+    }
   };
 
   if (loading) {
@@ -419,6 +456,165 @@ export default function HomepageConfigPage() {
           ))}
         </section>
 
+        {/* ─── About Page ─── */}
+        <div className="pt-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+            <i className="ri-information-line text-gray-400"></i> About Page
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">Edit the content shown on the /about page.</p>
+        </div>
+
+        {/* About Hero */}
+        <section className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">About Hero Banner</h2>
+          <p className="text-sm text-gray-500 mb-6">The large banner at the top of the About page.</p>
+          <div className="grid gap-5">
+            <Field
+              label="Hero Title"
+              value={settings.about_hero_title || ''}
+              onChange={(v) => updateField('about_hero_title', v)}
+              placeholder="Our Story"
+            />
+            <Field
+              label="Hero Subtitle"
+              value={settings.about_hero_subtitle || ''}
+              onChange={(v) => updateField('about_hero_subtitle', v)}
+              placeholder="A journey of passion, quality, and beauty."
+              textarea
+            />
+            <ImageField
+              label="Hero Background Image"
+              value={settings.about_hero_image || ''}
+              onChange={(v) => { updateField('about_hero_image', v); }}
+              uploading={uploadingAbout === 'hero'}
+              onUpload={(file) => handleAboutImageUpload(file, 'about_hero_image', 'hero')}
+            />
+          </div>
+        </section>
+
+        {/* About Story */}
+        <section className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Our Story Section</h2>
+          <p className="text-sm text-gray-500 mb-6">The main story card with image and text.</p>
+          <div className="grid gap-5">
+            <ImageField
+              label="Story / Founder Image"
+              value={settings.about_story_image || ''}
+              onChange={(v) => { updateField('about_story_image', v); }}
+              uploading={uploadingAbout === 'story'}
+              onUpload={(file) => handleAboutImageUpload(file, 'about_story_image', 'story')}
+            />
+            <div className="grid md:grid-cols-2 gap-5">
+              <Field
+                label="Founder Name"
+                value={settings.about_founder_name || ''}
+                onChange={(v) => updateField('about_founder_name', v)}
+                placeholder="Founder"
+              />
+              <Field
+                label="Founder Title"
+                value={settings.about_founder_title || ''}
+                onChange={(v) => updateField('about_founder_title', v)}
+                placeholder="CEO"
+              />
+            </div>
+            <Field
+              label="Story Heading"
+              value={settings.about_story_title || ''}
+              onChange={(v) => updateField('about_story_title', v)}
+              placeholder="From Passion to Business"
+            />
+            <Field
+              label="Story Content (separate paragraphs with blank lines)"
+              value={settings.about_story_content || ''}
+              onChange={(v) => updateField('about_story_content', v)}
+              placeholder="Our journey started with a simple vision..."
+              textarea
+              rows={6}
+            />
+          </div>
+        </section>
+
+        {/* About Mission */}
+        <section className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Mission Cards</h2>
+          <p className="text-sm text-gray-500 mb-6">The two mission statement cards.</p>
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Mission Card 1 (Light)</h3>
+              <div className="grid gap-4">
+                <Field
+                  label="Title"
+                  value={settings.about_mission1_title || ''}
+                  onChange={(v) => updateField('about_mission1_title', v)}
+                  placeholder="Direct Sourcing"
+                />
+                <Field
+                  label="Content"
+                  value={settings.about_mission1_content || ''}
+                  onChange={(v) => updateField('about_mission1_content', v)}
+                  placeholder="We believe in going to the source..."
+                  textarea
+                />
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Mission Card 2 (Dark)</h3>
+              <div className="grid gap-4">
+                <Field
+                  label="Title"
+                  value={settings.about_mission2_title || ''}
+                  onChange={(v) => updateField('about_mission2_title', v)}
+                  placeholder="Quality For Everyone"
+                />
+                <Field
+                  label="Content"
+                  value={settings.about_mission2_content || ''}
+                  onChange={(v) => updateField('about_mission2_content', v)}
+                  placeholder="Luxury shouldn't be exclusive..."
+                  textarea
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* About Values & CTA */}
+        <section className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Values & CTA</h2>
+          <p className="text-sm text-gray-500 mb-6">Section headings and the bottom call-to-action.</p>
+          <div className="grid gap-5">
+            <div className="grid md:grid-cols-2 gap-5">
+              <Field
+                label="Values Section Title"
+                value={settings.about_values_title || ''}
+                onChange={(v) => updateField('about_values_title', v)}
+                placeholder="Why Shop With Us?"
+              />
+              <Field
+                label="Values Section Subtitle"
+                value={settings.about_values_subtitle || ''}
+                onChange={(v) => updateField('about_values_subtitle', v)}
+                placeholder="Quality and value, guaranteed."
+              />
+            </div>
+            <div className="grid md:grid-cols-2 gap-5">
+              <Field
+                label="CTA Title"
+                value={settings.about_cta_title || ''}
+                onChange={(v) => updateField('about_cta_title', v)}
+                placeholder="Ready to experience the difference?"
+              />
+              <Field
+                label="CTA Subtitle"
+                value={settings.about_cta_subtitle || ''}
+                onChange={(v) => updateField('about_cta_subtitle', v)}
+                placeholder="Join thousands of happy customers."
+              />
+            </div>
+          </div>
+        </section>
+
         {/* Bottom Save */}
         <div className="flex justify-end pb-8">
           <button
@@ -444,12 +640,14 @@ function Field({
   onChange,
   placeholder,
   textarea,
+  rows = 3,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   textarea?: boolean;
+  rows?: number;
 }) {
   return (
     <div>
@@ -459,8 +657,8 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          rows={3}
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600 resize-none"
+          rows={rows}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600 resize-vertical"
         />
       ) : (
         <input
@@ -471,6 +669,77 @@ function Field({
           className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
         />
       )}
+    </div>
+  );
+}
+
+function ImageField({
+  label,
+  value,
+  onChange,
+  uploading,
+  onUpload,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  uploading: boolean;
+  onUpload: (file: File) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <div className="flex items-center gap-4">
+        <div
+          className="w-32 h-20 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center cursor-pointer relative group border border-gray-200"
+          onClick={() => inputRef.current?.click()}
+        >
+          {uploading ? (
+            <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-700 rounded-full animate-spin"></div>
+          ) : value ? (
+            <>
+              <img src={value} alt={label} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <i className="ri-upload-2-line text-white text-lg"></i>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center text-gray-400">
+              <i className="ri-image-add-line text-lg"></i>
+              <span className="text-[10px]">Upload</span>
+            </div>
+          )}
+        </div>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Image URL or upload..."
+          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-1 focus:ring-gray-600 focus:border-gray-600"
+        />
+        {value && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="flex-shrink-0 w-9 h-9 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            title="Remove"
+          >
+            <i className="ri-delete-bin-line"></i>
+          </button>
+        )}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onUpload(f);
+          e.target.value = '';
+        }}
+        className="hidden"
+      />
     </div>
   );
 }

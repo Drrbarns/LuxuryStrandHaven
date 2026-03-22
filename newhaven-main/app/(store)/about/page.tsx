@@ -16,6 +16,7 @@ export default function AboutPage() {
   const storyTitle = getSetting('about_story_title') || 'From Passion to Business';
   const storyContent = getSetting('about_story_content') || '';
   const storyImage = getSetting('about_story_image') || '/hero4.jpeg';
+  const heroImage = getSetting('about_hero_image') || '/hero7.jpeg';
   const founderName = getSetting('about_founder_name') || 'Founder';
   const founderTitle = getSetting('about_founder_title') || 'CEO';
   const mission1Title = getSetting('about_mission1_title') || 'Direct Sourcing';
@@ -58,10 +59,9 @@ export default function AboutPage() {
       <div className="bg-black text-white pb-32 lg:pb-48 pt-24 lg:pt-32 relative overflow-hidden">
         <div className="absolute inset-0 opacity-40">
           <img
-            src="/hero7.jpeg"
+            src={heroImage}
             alt="About Background"
             className="w-full h-full object-cover"
-            onError={(e) => { const t = e.currentTarget; if (t.src !== '/hero7.jpeg') t.src = '/hero6.jpeg'; }}
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black"></div>
@@ -81,10 +81,9 @@ export default function AboutPage() {
             <div className="order-2 lg:order-1 relative">
               <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl aspect-[4/5] lg:aspect-[3/4]">
                 <img
-                  src="/hero4.jpeg"
+                  src={storyImage}
                   alt={`${founderName} - ${founderTitle}`}
                   className="w-full h-full object-cover object-center transition-transform duration-700 hover:scale-105 filter contrast-110"
-                  onError={(e) => { const t = e.currentTarget; if (t.src !== '/hero4.jpeg') t.src = '/hero3.jpeg'; }}
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent p-8 lg:p-12 text-white">
                   <p className="font-serif text-2xl mb-1">{founderName}</p>
