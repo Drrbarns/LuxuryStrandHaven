@@ -173,17 +173,6 @@ export default function Home() {
         {/* Content — left-aligned on desktop, centred on mobile */}
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 pb-16 sm:pb-20 lg:pb-28 pt-32">
           <div className="max-w-xl lg:max-w-2xl">
-            {/* Tag pill */}
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="text-white/80 text-xs font-bold tracking-[0.25em] uppercase mb-5 inline-flex items-center gap-2 px-4 py-1.5 border border-white/25 rounded-full backdrop-blur-sm"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse"></span>
-              {heroTagText || 'Luxury Strand Haven — Premium Hair'}
-            </motion.p>
-
             {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 32 }}
@@ -215,14 +204,8 @@ export default function Home() {
                 href={heroPrimaryLink || '/shop'}
                 className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105 shadow-xl hover:shadow-white/20"
               >
-                {heroPrimaryText || 'Shop Now'}
+                {heroPrimaryText || 'Shop Collections'}
                 <i className="ri-arrow-right-line text-lg"></i>
-              </Link>
-              <Link
-                href={heroSecondaryLink || '/academia'}
-                className="inline-flex items-center justify-center gap-2 border border-white/40 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 px-8 py-4 rounded-full font-semibold text-base transition-all"
-              >
-                {heroSecondaryText || 'Academia'}
               </Link>
             </motion.div>
 
@@ -275,7 +258,7 @@ export default function Home() {
             </Link>
           </AnimatedSection>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-3 md:grid-cols-3 gap-2 sm:gap-3 md:gap-6">
             {categories.map((category) => (
               <Link
                 href={`/shop?category=${category.slug}`}
@@ -288,7 +271,7 @@ export default function Home() {
                     alt={category.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 50vw, 33vw"
+                    sizes="(max-width: 768px) 33vw, 33vw"
                     quality={85}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
