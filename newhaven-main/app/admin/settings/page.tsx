@@ -75,16 +75,20 @@ export default function SettingsPage() {
             const { data, error } = await supabase.from('store_settings').select('key, value');
             if (error) throw error;
             const map: Record<string, string> = {};
+            let heroSlidesRaw: string | undefined;
             (data || []).forEach((row: any) => {
-                map[row.key] = typeof row.value === 'string' ? row.value : JSON.stringify(row.value);
+                if (row.key === 'hero_slides') {
+                    heroSlidesRaw = typeof row.value === 'string' ? row.value : JSON.stringify(row.value);
+                } else {
+                    map[row.key] = typeof row.value === 'string' ? row.value : JSON.stringify(row.value);
+                }
             });
             setSettings(map);
 
-            // Parse hero slides
-            if (map.hero_slides) {
+            // Parse hero slides from dedicated variable (kept out of settings map)
+            if (heroSlidesRaw) {
                 try {
-                    const raw = map.hero_slides;
-                    const parsed = JSON.parse(raw);
+                    const parsed = JSON.parse(heroSlidesRaw);
                     if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((s: string) => s)) {
                         setHeroSlides(parsed.filter((s: string) => s));
                     }
@@ -112,7 +116,7 @@ export default function SettingsPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const entries = Object.entries(settings).filter(([k, v]) => v !== undefined && k !== 'hero_slides');
+            const entries = Object.entries(settings).filter(([_, v]) => v !== undefined);
             for (const [key, value] of entries) {
                 await supabase.from('store_settings').upsert(
                     { key, value, updated_at: new Date().toISOString() },
