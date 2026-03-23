@@ -8,8 +8,10 @@ export async function testSmsAction(phone: string, message: string) {
         // See: https://docs.moolre.com/#/send-sms
         const smsVasKey = process.env.MOOLRE_SMS_API_KEY;
 
+        const senderId = process.env.MOOLRE_SMS_SENDER_ID || process.env.SMS_SENDER_ID || 'LuxuryStrand';
         const envDebug = {
             MOOLRE_SMS_API_KEY: smsVasKey ? 'Set' : 'Unset',
+            MOOLRE_SMS_SENDER_ID: senderId,
         };
 
         if (!smsVasKey) {
@@ -39,7 +41,7 @@ export async function testSmsAction(phone: string, message: string) {
             },
             body: JSON.stringify({
                 type: 1,
-                senderid: process.env.SMS_SENDER_ID || 'Prishane',
+                senderid: process.env.MOOLRE_SMS_SENDER_ID || process.env.SMS_SENDER_ID || 'LuxuryStrand',
                 messages: [
                     {
                         recipient: recipient,

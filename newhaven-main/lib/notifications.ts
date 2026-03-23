@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY || 'missing_api_key');
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com';
 const STORE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'Luxury Strand Haven';
 const EMAIL_FROM = process.env.EMAIL_FROM || `${STORE_NAME} <noreply@example.com>`;
-const SMS_SENDER_ID = process.env.SMS_SENDER_ID || 'Prishane';
+const SMS_SENDER_ID = process.env.MOOLRE_SMS_SENDER_ID || process.env.SMS_SENDER_ID || 'LuxuryStrand';
 const BRAND = {
     name: STORE_NAME,
     color: '#374151',
