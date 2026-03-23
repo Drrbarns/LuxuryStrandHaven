@@ -112,14 +112,14 @@ export default function SettingsPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const entries = Object.entries(settings).filter(([_, v]) => v !== undefined);
+            const entries = Object.entries(settings).filter(([k, v]) => v !== undefined && k !== 'hero_slides');
             for (const [key, value] of entries) {
                 await supabase.from('store_settings').upsert(
                     { key, value, updated_at: new Date().toISOString() },
                     { onConflict: 'key' }
                 );
             }
-            // Save hero slides as JSON array
+            // Save hero slides from dedicated state (not the stale settings map copy)
             await supabase.from('store_settings').upsert(
                 { key: 'hero_slides', value: JSON.stringify(heroSlides), updated_at: new Date().toISOString() },
                 { onConflict: 'key' }
