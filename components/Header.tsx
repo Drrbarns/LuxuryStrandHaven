@@ -111,12 +111,14 @@ export default function Header() {
       const wigsItem = makeParentItem('wigs', 'Wigs');
       const bundlesItem = makeParentItem('bundles', 'Bundles');
       const closureItem = makeParentItem('closure-frontals', 'Closure and frontal');
+      const braidingItem = makeParentItem('braiding-extensions', 'Braiding Extensions');
       const toolsItem = makeParentItem('products-tools', 'Products and tools');
       const preOrderItem = makeParentItem('pre-orders', 'Pre order');
 
       if (wigsItem) orderedItems.push(wigsItem);
       if (bundlesItem) orderedItems.push(bundlesItem);
       if (closureItem) orderedItems.push(closureItem);
+      if (braidingItem) orderedItems.push(braidingItem);
       if (toolsItem) orderedItems.push(toolsItem);
       if (preOrderItem) orderedItems.push(preOrderItem);
       orderedItems.push({ label: 'Academia', href: '/academia' });

@@ -286,7 +286,7 @@ function ShopContent() {
 
                         {/* Parent Categories — ordered to match hamburger menu */}
                         {(() => {
-                          const SLUG_ORDER = ['wigs', 'bundles', 'closure-frontals', 'products-tools', 'pre-orders'];
+                          const SLUG_ORDER = ['wigs', 'bundles', 'closure-frontals', 'braiding-extensions', 'products-tools', 'pre-orders'];
                           const parents = categories.filter(c => !c.parent_id && c.id !== 'all');
                           const ordered: typeof parents = [];
                           for (const slug of SLUG_ORDER) {
