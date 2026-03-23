@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
   usePageTitle('');
-  const { getSetting, getSettingJSON, getActiveBanners } = useCMS();
+  const { getSetting, getSettingJSON, getActiveBanners, loading: cmsLoading } = useCMS();
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ export default function Home() {
 
   const DEFAULT_SLIDES = ['/brand-hero1.png', '/brand-hero2.png', '/brand-hero3.png'];
   const cmsSlides = getSettingJSON<string[]>('hero_slides', []);
-  const heroSlides = cmsSlides.length > 0 ? cmsSlides.filter((s: string) => s) : DEFAULT_SLIDES;
+  const heroSlides = cmsLoading ? [] : (cmsSlides.length > 0 ? cmsSlides.filter((s: string) => s) : DEFAULT_SLIDES);
   const HERO_INTERVAL_MS = 3000;
   const [heroIndex, setHeroIndex] = useState(0);
 
@@ -115,6 +115,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative w-full min-h-[85vh] lg:min-h-screen flex flex-col justify-end overflow-hidden bg-black">
         <div className="absolute inset-0 z-0 bg-black">
+          {heroSlides.length > 0 && (<>
           {/* Pre-load off-screen so Next.js optimises all slides eagerly */}
           <div className="sr-only" aria-hidden>
             {heroSlides.map((src) => (
@@ -145,6 +146,7 @@ export default function Home() {
               />
             </motion.div>
           </AnimatePresence>
+          </>)}
           {/* Rich bottom-up gradient so text is always readable */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10 pointer-events-none" aria-hidden />
         </div>
