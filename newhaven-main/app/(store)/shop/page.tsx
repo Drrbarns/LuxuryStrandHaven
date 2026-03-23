@@ -61,6 +61,9 @@ function ShopContent() {
 
   // Fetch Products
   useEffect(() => {
+    // Wait for real categories to load before filtering by a specific category
+    if (selectedCategory !== 'all' && categories.length <= 1) return;
+
     async function fetchProducts() {
       setLoading(true);
       try {
