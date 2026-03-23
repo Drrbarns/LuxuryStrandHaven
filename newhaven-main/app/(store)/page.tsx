@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Home() {
   usePageTitle('');
-  const { getSetting, getActiveBanners } = useCMS();
+  const { getSetting, getSettingJSON, getActiveBanners } = useCMS();
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,31 +58,10 @@ export default function Home() {
   const heroSubheadline = getSetting('hero_subheadline') || 'Premium wigs, bundles & extensions — crafted for women who demand nothing but the best.';
 
   const DEFAULT_SLIDES = ['/brand-hero1.png', '/brand-hero2.png', '/brand-hero3.png'];
-  const [heroSlides, setHeroSlides] = useState<string[]>(DEFAULT_SLIDES);
+  const cmsSlides = getSettingJSON<string[]>('hero_slides', []);
+  const heroSlides = cmsSlides.length > 0 ? cmsSlides.filter((s: string) => s) : DEFAULT_SLIDES;
   const HERO_INTERVAL_MS = 3000;
   const [heroIndex, setHeroIndex] = useState(0);
-
-  useEffect(() => {
-    async function loadSlides() {
-      try {
-        const { data } = await supabase
-          .from('store_settings')
-          .select('value')
-          .eq('key', 'hero_slides')
-          .single();
-        if (data?.value) {
-          const raw = typeof data.value === 'string' ? data.value : JSON.stringify(data.value);
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((s: string) => s)) {
-            setHeroSlides(parsed.filter((s: string) => s));
-          }
-        }
-      } catch {
-        // keep defaults
-      }
-    }
-    loadSlides();
-  }, []);
 
   useEffect(() => {
     if (heroSlides.length <= 1) return;
