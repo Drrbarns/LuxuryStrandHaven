@@ -591,9 +591,15 @@ export default function AdminOrdersPage() {
                       </div>
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${statusColors[order.status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
-                        {formatStatus(order.status)}
-                      </span>
+                      <div className="flex flex-col gap-1.5">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${statusColors[order.status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                          {formatStatus(order.status)}
+                        </span>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium whitespace-nowrap ${order.shipping_method === 'pickup' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                          <i className={`${order.shipping_method === 'pickup' ? 'ri-store-2-line' : 'ri-truck-line'} text-xs`}></i>
+                          {order.shipping_method === 'pickup' ? 'Pickup' : 'Delivery'}
+                        </span>
+                      </div>
                     </td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">

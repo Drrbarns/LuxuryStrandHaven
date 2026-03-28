@@ -339,7 +339,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
           {/* Order Summary */}
           <div className="flex justify-between mb-6">
             <div>
-              <p><span className="font-semibold">Shipping Method:</span> {order?.shipping_method || 'Standard'}</p>
+              <p><span className="font-semibold">Shipping Method:</span> {order?.shipping_method === 'pickup' ? 'Store Pickup' : order?.shipping_method === 'doorstep' ? 'Doorstep Delivery' : (order?.shipping_method || 'Standard')}</p>
               <p><span className="font-semibold">Payment:</span> {order?.payment_method} ({order?.payment_status})</p>
               {trackingNumber && <p><span className="font-semibold">Tracking #:</span> {trackingNumber}</p>}
             </div>
@@ -523,6 +523,21 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
               >
                 {statusUpdating ? 'Updating...' : 'Update Status'}
               </button>
+            </div>
+
+            {/* Delivery Method */}
+            <div className={`rounded-xl shadow-sm border-2 p-6 ${order.shipping_method === 'pickup' ? 'bg-emerald-50 border-emerald-300' : 'bg-amber-50 border-amber-300'}`}>
+              <div className="flex items-center space-x-3">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${order.shipping_method === 'pickup' ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+                  <i className={`text-2xl ${order.shipping_method === 'pickup' ? 'ri-store-2-line text-emerald-700' : 'ri-truck-line text-amber-700'}`}></i>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Delivery Method</p>
+                  <p className={`text-lg font-bold ${order.shipping_method === 'pickup' ? 'text-emerald-800' : 'text-amber-800'}`}>
+                    {order.shipping_method === 'pickup' ? 'Store Pickup' : order.shipping_method === 'doorstep' ? 'Doorstep Delivery' : (order.shipping_method || 'Not specified')}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
