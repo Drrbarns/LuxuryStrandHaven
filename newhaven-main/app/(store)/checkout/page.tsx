@@ -34,16 +34,30 @@ export default function CheckoutPage() {
     region: ''
   });
 
-  // Ghana Regions for dropdown
-  const ghanaRegions = [
-    'Greater Accra', 'Ashanti', 'Western', 'Central', 'Eastern',
-    'Northern', 'Volta', 'Upper East', 'Upper West', 'Brong-Ahafo',
-    'Ahafo', 'Bono', 'Bono East', 'North East', 'Savannah', 'Oti', 'Western North'
-  ];
+  // Ghana regions → cities (comprehensive)
+  const GHANA_REGION_CITIES: Record<string, string[]> = {
+    'Greater Accra': ['Accra','Tema','Madina','Ashaiman','Kasoa','Teshie','Nungua','Adenta','Dodowa','Prampram','Ada Foah','Kpone','Lashibi','Sakumono','Dansoman','Weija','Gbawe','Amasaman','Ablekuma','Achimota','Dome','Haatso','Oyibi','Ashongman'],
+    'Ashanti': ['Kumasi','Obuasi','Mampong','Ejura','Konongo','Offinso','Bekwai','Agogo','Juaso','New Edubiase','Nkawie','Tepa','Effiduase','Mankranso','Kuntenase','Asokwa','Adum','Tafo','Suame','Ahenema Kokoben','Sokoban','Buokrom'],
+    'Western': ['Sekondi-Takoradi','Tarkwa','Prestea','Axim','Half Assini','Bogoso','Agona Nkwanta','Elubo','Shama','Dixcove','Nkroful','Esiama'],
+    'Central': ['Cape Coast','Winneba','Saltpond','Elmina','Dunkwa-on-Offin','Agona Swedru','Mankessim','Assin Fosu','Apam','Kasoa','Buduburam','Effutu','Anomabu','Moree','Breman Asikuma','Twifo Praso'],
+    'Eastern': ['Koforidua','Nkawkaw','Asamankese','Nsawam','Kibi','Akropong','Mpraeso','Akim Oda','Begoro','Suhum','Aburi','Kade','Somanya','Donkorkrom','Akwatia','Adukrom','Akoase','Kyebi'],
+    'Northern': ['Tamale','Yendi','Savelugu','Bimbilla','Tolon','Kumbungu','Gushegu','Karaga','Zabzugu','Mion','Sang','Nanton'],
+    'Volta': ['Ho','Keta','Aflao','Hohoe','Kpando','Anloga','Denu','Sogakope','Adidome','Akatsi','Ketu','Dzodze','Peki','Tsito','Amedzofe'],
+    'Upper East': ['Bolgatanga','Navrongo','Bawku','Paga','Zebilla','Sandema','Bongo','Pusiga','Garu','Tempane','Tongo','Zuarungu'],
+    'Upper West': ['Wa','Tumu','Jirapa','Lawra','Nandom','Nadowli','Lambussie','Issa','Gwollu','Funsi','Hamile','Wechiau'],
+    'Ahafo': ['Goaso','Bechem','Duayaw-Nkwanta','Kukuom','Hwidiem','Kenyasi','Acherensua','Asunafo'],
+    'Bono': ['Sunyani','Berekum','Dormaa Ahenkro','Wenchi','Odumase','Nsawkaw','Sampa','Drobo','Chiraa','Japekrom','Nsoatre'],
+    'Bono East': ['Techiman','Kintampo','Nkoranza','Yeji','Atebubu','Kwame Danso','Prang','Tuobodom','Tanoso','Amanten','Jema'],
+    'North East': ['Nalerigu','Gambaga','Walewale','Chereponi','Bunkpurugu','Yunyoo','Nakpanduri','Gbintiri'],
+    'Savannah': ['Damongo','Salaga','Bole','Sawla','Buipe','Yapei','Daboya','Tolon','Larabanga','Kpandai'],
+    'Oti': ['Dambai','Kadjebi','Nkwanta','Jasikan','Kpassa','Chinderi','Worawora','Bowiri'],
+    'Western North': ['Sefwi Wiawso','Bibiani','Juaboso','Enchi','Akontombra','Dadieso','Bodi','Anhwiaso','Asawinso','Essam'],
+  };
+
+  const ghanaRegions = Object.keys(GHANA_REGION_CITIES);
 
   // Cities per country — dropdown when available, text input otherwise
   const COUNTRY_CITIES: Record<string, string[]> = {
-    'Ghana': ['Accra','Kumasi','Tamale','Sekondi-Takoradi','Cape Coast','Tema','Madina','Koforidua','Sunyani','Ho','Wa','Bolgatanga','Techiman','Nkawkaw','Agona Swedru','Kasoa','Ashaiman','Winneba','Berekum','Kintampo','Mampong','Ejura','Nsawam','Asamankese','Dunkwa','Saltpond','Elmina','Prestea','Konongo','Offinso','Nkoranza','Yeji','Bawku','Navrongo','Gambaga','Damango','Yendi','Salaga','Kpando','Hohoe','Keta','Aflao','Obuasi','Teshie'],
     'Nigeria': ['Lagos','Abuja','Kano','Ibadan','Kaduna','Port Harcourt','Benin City','Maiduguri','Zaria','Aba','Jos','Ilorin','Oyo','Enugu','Abeokuta','Onitsha','Warri','Sokoto','Calabar','Uyo','Asaba','Owerri','Akure','Bauchi','Makurdi','Minna','Awka','Nnewi','Umuahia','Yola','Gombe','Lafia','Lokoja','Ado Ekiti','Ikeja'],
     'United Kingdom': ['London','Manchester','Birmingham','Leeds','Glasgow','Sheffield','Bradford','Edinburgh','Liverpool','Bristol','Cardiff','Coventry','Leicester','Nottingham','Newcastle upon Tyne','Southampton','Aberdeen','Brighton','Derby','Plymouth','Oxford','Cambridge','Exeter','York','Bath'],
     'United States': ['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Jacksonville','Fort Worth','Columbus','Charlotte','Indianapolis','San Francisco','Seattle','Denver','Nashville','Atlanta','Miami','Minneapolis','Boston','Portland','Las Vegas','Detroit','Memphis','Baltimore','Washington DC','New Orleans','Milwaukee','Albuquerque','Tucson','Fresno','Sacramento','Kansas City','Omaha','Raleigh','Colorado Springs'],
@@ -81,16 +95,16 @@ export default function CheckoutPage() {
     'Japan': ['Tokyo','Yokohama','Osaka','Nagoya','Sapporo','Fukuoka','Kobe','Kawasaki','Kyoto','Saitama','Hiroshima','Sendai','Chiba','Kitakyushu','Sakai'],
     'South Korea': ['Seoul','Busan','Incheon','Daegu','Daejeon','Gwangju','Suwon','Ulsan','Changwon','Goyang'],
     'Brazil': ['São Paulo','Rio de Janeiro','Brasília','Salvador','Fortaleza','Belo Horizonte','Manaus','Curitiba','Recife','Porto Alegre','Belém','Goiânia','Guarulhos','Campinas','São Luís'],
-    'Mexico': ['Mexico City','Guadalajara','Monterrey','Puebla','Tijuana','León','Juárez','Torreón','Querétaro','San Luis Potosí','Mérida','Mexicali','Aguascalientes','Hermosillo'],
+    'Mexico': ['Mexico City','Guadalajara','Monterrey','Puebla','Tijuana','León','Juárez','Torreón','Querétaro','San Luis Potosí','Mérida','Mexicali','Aguascalientes','Cali','Hermosillo'],
     'Argentina': ['Buenos Aires','Córdoba','Rosario','Mendoza','Tucumán','La Plata','Mar del Plata','Salta','Santa Fe','San Juan'],
     'Pakistan': ['Karachi','Lahore','Faisalabad','Rawalpindi','Islamabad','Gujranwala','Peshawar','Multan','Quetta','Hyderabad'],
     'Bangladesh': ['Dhaka','Chittagong','Sylhet','Rajshahi','Khulna','Comilla','Mymensingh','Barisal','Rangpur','Narayanganj'],
-    'Egypt': ['Cairo','Alexandria','Giza','Shubra El Kheima','Port Said','Suez','Luxor','Asyut','Faiyum'],
+    'Egypt': ['Cairo','Alexandria','Giza','Shubra El Kheima','Port Said','Suez','Luxor','Asyut','Ismaïlia','Faiyum'],
     'Morocco': ['Casablanca','Rabat','Fez','Marrakech','Agadir','Tangier','Meknès','Oujda','Kenitra','Tetouan'],
     'Turkey': ['Istanbul','Ankara','Izmir','Bursa','Adana','Gaziantep','Konya','Antalya','Kayseri','Mersin'],
   };
 
-  // All countries list (Ghana first)
+  // All countries (Ghana first)
   const countries = [
     'Ghana',
     'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda',
@@ -127,7 +141,7 @@ export default function CheckoutPage() {
   ];
 
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
-  const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'moolre' | 'stripe' | 'paypal'>('paystack');
+  const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'moolre' | 'stripe' | 'paypal'>('moolre');
   const [errors, setErrors] = useState<any>({});
 
 
@@ -161,7 +175,7 @@ export default function CheckoutPage() {
 
   // Calculate Totals
   const subtotal = cartSubtotal;
-  const shippingCost = 0; // Delivery options temporarily disabled
+  const shippingCost = deliveryMethod === 'pickup' ? 0 : 0; // Shipping cost to be implemented from backend
   const tax = 0; // No Tax
   const total = subtotal + shippingCost + tax;
 
@@ -261,14 +275,6 @@ export default function CheckoutPage() {
         ? await supabase.from('products').select('id, metadata').in('id', productIds)
         : { data: [] };
       const productMetaMap = new Map((productsData || []).map((p: any) => [p.id, p.metadata]));
-
-      // Pre-validate: check all UUID cart items actually exist in the DB
-      const foundIds = new Set((productsData || []).map((p: any) => p.id));
-      const missingItems = cart.filter(item => isValidUUID(item.id) && !foundIds.has(item.id));
-      if (missingItems.length > 0) {
-        const names = missingItems.map(i => i.name).join(', ');
-        throw new Error(`Some items are no longer available: ${names}. Please remove them from your cart and try again.`);
-      }
       
       for (const item of cart) {
         let productId = item.id;
@@ -542,9 +548,7 @@ export default function CheckoutPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          First Name *
-                        </label>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">First Name *</label>
                         <input
                           type="text"
                           value={shippingData.firstName}
@@ -555,9 +559,7 @@ export default function CheckoutPage() {
                         {errors.firstName && <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>}
                       </div>
                       <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">
-                          Last Name *
-                        </label>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">Last Name *</label>
                         <input
                           type="text"
                           value={shippingData.lastName}
@@ -570,9 +572,7 @@ export default function CheckoutPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Email Address *
-                      </label>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Email Address *</label>
                       <input
                         type="email"
                         value={shippingData.email}
@@ -585,9 +585,7 @@ export default function CheckoutPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Phone Number *
-                      </label>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Phone Number *</label>
                       <input
                         type="tel"
                         value={shippingData.phone}
@@ -600,9 +598,7 @@ export default function CheckoutPage() {
 
                     {/* Country */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">
-                        Country *
-                      </label>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Country *</label>
                       <select
                         value={shippingData.country}
                         onChange={(e) => setShippingData({ ...shippingData, country: e.target.value, region: '', city: '' })}
@@ -631,42 +627,14 @@ export default function CheckoutPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* City */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">City *</label>
-                        {COUNTRY_CITIES[shippingData.country] ? (
-                          <select
-                            value={shippingData.city}
-                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                          >
-                            <option value="">Select City</option>
-                            {COUNTRY_CITIES[shippingData.country].map((c) => (
-                              <option key={c} value={c}>{c}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            type="text"
-                            value={shippingData.city}
-                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                            placeholder="Enter your city"
-                          />
-                        )}
-                        {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
-                      </div>
-
-                      {/* Region (Ghana) or State/Province (international) */}
+                      {/* Region (Ghana) or State/Province (international) — comes first */}
                       <div>
                         {shippingData.country === 'Ghana' ? (
                           <>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">
-                              Region *
-                            </label>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">Region *</label>
                             <select
                               value={shippingData.region}
-                              onChange={(e) => setShippingData({ ...shippingData, region: e.target.value })}
+                              onChange={(e) => setShippingData({ ...shippingData, region: e.target.value, city: '' })}
                               className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.region ? 'border-red-500' : 'border-gray-300'}`}
                             >
                               <option value="">Select Region</option>
@@ -690,6 +658,44 @@ export default function CheckoutPage() {
                             />
                           </>
                         )}
+                      </div>
+
+                      {/* City — filtered by region for Ghana */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">City *</label>
+                        {shippingData.country === 'Ghana' ? (
+                          <select
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            disabled={!shippingData.region}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'} ${!shippingData.region ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            <option value="">{shippingData.region ? 'Select City' : 'Select a region first'}</option>
+                            {(GHANA_REGION_CITIES[shippingData.region] || []).map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        ) : COUNTRY_CITIES[shippingData.country] ? (
+                          <select
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                          >
+                            <option value="">Select City</option>
+                            {COUNTRY_CITIES[shippingData.country].map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="Enter your city"
+                          />
+                        )}
+                        {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
                       </div>
                     </div>
 
@@ -788,76 +794,46 @@ export default function CheckoutPage() {
                   </div>
 
                   <h2 className="text-xl font-bold text-gray-900 mt-8 mb-4">Payment Method</h2>
-                  <p className="text-sm text-gray-600 mb-4">Select how you’d like to pay. Paystack, Moolre, Stripe, or PayPal — choose one.</p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paystack' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="paystack"
-                        checked={paymentMethod === 'paystack'}
-                        onChange={() => setPaymentMethod('paystack')}
-                        className="w-5 h-5 text-gray-900 flex-shrink-0"
-                      />
+                  <p className="text-sm text-gray-600 mb-4">Pay securely with Mobile Money.</p>
+                  <div className="grid grid-cols-1 gap-3">
+                    {/* Paystack — temporarily disabled
+                    <label className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paystack' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                      <input type="radio" name="payment" value="paystack" checked={paymentMethod === 'paystack'} onChange={() => setPaymentMethod('paystack')} className="w-5 h-5 text-gray-900 flex-shrink-0" />
                       <i className="ri-bank-card-line text-xl text-gray-600 flex-shrink-0"></i>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">Paystack</p>
-                        <p className="text-xs text-gray-600 truncate">Card & Mobile Money</p>
-                      </div>
+                      <div className="min-w-0"><p className="font-semibold text-gray-900">Paystack</p><p className="text-xs text-gray-600 truncate">Card & Mobile Money</p></div>
                     </label>
+                    */}
                     <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'moolre' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
+                      className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors border-gray-900 bg-gray-50"
                     >
                       <input
                         type="radio"
                         name="payment"
                         value="moolre"
-                        checked={paymentMethod === 'moolre'}
+                        checked={true}
                         onChange={() => setPaymentMethod('moolre')}
                         className="w-5 h-5 text-gray-900 flex-shrink-0"
                       />
                       <i className="ri-smartphone-line text-xl text-gray-600 flex-shrink-0"></i>
                       <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">Moolre</p>
-                        <p className="text-xs text-gray-600 truncate">Mobile Money</p>
+                        <p className="font-semibold text-gray-900">Mobile Money</p>
+                        <p className="text-xs text-gray-600 truncate">MTN, Vodafone, AirtelTigo</p>
                       </div>
                     </label>
-                    <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'stripe' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="stripe"
-                        checked={paymentMethod === 'stripe'}
-                        onChange={() => setPaymentMethod('stripe')}
-                        className="w-5 h-5 text-gray-900 flex-shrink-0"
-                      />
+                    {/* Stripe — temporarily disabled
+                    <label className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'stripe' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                      <input type="radio" name="payment" value="stripe" checked={paymentMethod === 'stripe'} onChange={() => setPaymentMethod('stripe')} className="w-5 h-5 text-gray-900 flex-shrink-0" />
                       <i className="ri-bank-card-2-line text-xl text-gray-600 flex-shrink-0"></i>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">Stripe</p>
-                        <p className="text-xs text-gray-600 truncate">Card (Visa, Mastercard)</p>
-                      </div>
+                      <div className="min-w-0"><p className="font-semibold text-gray-900">Stripe</p><p className="text-xs text-gray-600 truncate">Card (Visa, Mastercard)</p></div>
                     </label>
-                    <label
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}
-                    >
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="paypal"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={() => setPaymentMethod('paypal')}
-                        className="w-5 h-5 text-gray-900 flex-shrink-0"
-                      />
+                    */}
+                    {/* PayPal — temporarily disabled
+                    <label className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${paymentMethod === 'paypal' ? 'border-gray-900 bg-gray-50' : 'border-gray-300 hover:border-gray-400'}`}>
+                      <input type="radio" name="payment" value="paypal" checked={paymentMethod === 'paypal'} onChange={() => setPaymentMethod('paypal')} className="w-5 h-5 text-gray-900 flex-shrink-0" />
                       <i className="ri-paypal-line text-xl text-gray-600 flex-shrink-0"></i>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">PayPal</p>
-                        <p className="text-xs text-gray-600 truncate">PayPal balance</p>
-                      </div>
+                      <div className="min-w-0"><p className="font-semibold text-gray-900">PayPal</p><p className="text-xs text-gray-600 truncate">PayPal balance</p></div>
                     </label>
+                    */}
                   </div>
 
                   <div className="flex flex-col-reverse md:flex-row gap-4 mt-6">
@@ -882,7 +858,7 @@ export default function CheckoutPage() {
                           Processing...
                         </>
                       ) : (
-                        paymentMethod === 'paystack' ? 'Pay with Paystack' : paymentMethod === 'moolre' ? 'Pay with Moolre' : paymentMethod === 'stripe' ? 'Pay with Stripe' : 'Pay with PayPal'
+                        'Pay with Mobile Money'
                       )}
                     </button>
                   </div>
@@ -902,6 +878,7 @@ export default function CheckoutPage() {
               shipping={shippingCost}
               tax={tax}
               total={total}
+              deliveryMethod={deliveryMethod}
             />
           </div>
         </div>

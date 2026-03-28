@@ -34,16 +34,30 @@ export default function CheckoutPage() {
     region: ''
   });
 
-  // Ghana Regions for dropdown
-  const ghanaRegions = [
-    'Greater Accra', 'Ashanti', 'Western', 'Central', 'Eastern',
-    'Northern', 'Volta', 'Upper East', 'Upper West', 'Brong-Ahafo',
-    'Ahafo', 'Bono', 'Bono East', 'North East', 'Savannah', 'Oti', 'Western North'
-  ];
+  // Ghana regions → cities (comprehensive)
+  const GHANA_REGION_CITIES: Record<string, string[]> = {
+    'Greater Accra': ['Accra','Tema','Madina','Ashaiman','Kasoa','Teshie','Nungua','Adenta','Dodowa','Prampram','Ada Foah','Kpone','Lashibi','Sakumono','Dansoman','Weija','Gbawe','Amasaman','Ablekuma','Achimota','Dome','Haatso','Oyibi','Ashongman'],
+    'Ashanti': ['Kumasi','Obuasi','Mampong','Ejura','Konongo','Offinso','Bekwai','Agogo','Juaso','New Edubiase','Nkawie','Tepa','Effiduase','Mankranso','Kuntenase','Asokwa','Adum','Tafo','Suame','Ahenema Kokoben','Sokoban','Buokrom'],
+    'Western': ['Sekondi-Takoradi','Tarkwa','Prestea','Axim','Half Assini','Bogoso','Agona Nkwanta','Elubo','Shama','Dixcove','Nkroful','Esiama'],
+    'Central': ['Cape Coast','Winneba','Saltpond','Elmina','Dunkwa-on-Offin','Agona Swedru','Mankessim','Assin Fosu','Apam','Kasoa','Buduburam','Effutu','Anomabu','Moree','Breman Asikuma','Twifo Praso'],
+    'Eastern': ['Koforidua','Nkawkaw','Asamankese','Nsawam','Kibi','Akropong','Mpraeso','Akim Oda','Begoro','Suhum','Aburi','Kade','Somanya','Donkorkrom','Akwatia','Adukrom','Akoase','Kyebi'],
+    'Northern': ['Tamale','Yendi','Savelugu','Bimbilla','Tolon','Kumbungu','Gushegu','Karaga','Zabzugu','Mion','Sang','Nanton'],
+    'Volta': ['Ho','Keta','Aflao','Hohoe','Kpando','Anloga','Denu','Sogakope','Adidome','Akatsi','Ketu','Dzodze','Peki','Tsito','Amedzofe'],
+    'Upper East': ['Bolgatanga','Navrongo','Bawku','Paga','Zebilla','Sandema','Bongo','Pusiga','Garu','Tempane','Tongo','Zuarungu'],
+    'Upper West': ['Wa','Tumu','Jirapa','Lawra','Nandom','Nadowli','Lambussie','Issa','Gwollu','Funsi','Hamile','Wechiau'],
+    'Ahafo': ['Goaso','Bechem','Duayaw-Nkwanta','Kukuom','Hwidiem','Kenyasi','Acherensua','Asunafo'],
+    'Bono': ['Sunyani','Berekum','Dormaa Ahenkro','Wenchi','Odumase','Nsawkaw','Sampa','Drobo','Chiraa','Japekrom','Nsoatre'],
+    'Bono East': ['Techiman','Kintampo','Nkoranza','Yeji','Atebubu','Kwame Danso','Prang','Tuobodom','Tanoso','Amanten','Jema'],
+    'North East': ['Nalerigu','Gambaga','Walewale','Chereponi','Bunkpurugu','Yunyoo','Nakpanduri','Gbintiri'],
+    'Savannah': ['Damongo','Salaga','Bole','Sawla','Buipe','Yapei','Daboya','Tolon','Larabanga','Kpandai'],
+    'Oti': ['Dambai','Kadjebi','Nkwanta','Jasikan','Kpassa','Chinderi','Worawora','Bowiri'],
+    'Western North': ['Sefwi Wiawso','Bibiani','Juaboso','Enchi','Akontombra','Dadieso','Bodi','Anhwiaso','Asawinso','Essam'],
+  };
+
+  const ghanaRegions = Object.keys(GHANA_REGION_CITIES);
 
   // Cities per country — dropdown when available, text input otherwise
   const COUNTRY_CITIES: Record<string, string[]> = {
-    'Ghana': ['Accra','Kumasi','Tamale','Sekondi-Takoradi','Cape Coast','Tema','Madina','Koforidua','Sunyani','Ho','Wa','Bolgatanga','Techiman','Nkawkaw','Agona Swedru','Kasoa','Ashaiman','Winneba','Berekum','Kintampo','Mampong','Ejura','Nsawam','Asamankese','Dunkwa','Saltpond','Elmina','Prestea','Konongo','Offinso','Nkoranza','Yeji','Bawku','Navrongo','Gambaga','Damango','Yendi','Salaga','Kpando','Hohoe','Keta','Aflao','Obuasi','Teshie'],
     'Nigeria': ['Lagos','Abuja','Kano','Ibadan','Kaduna','Port Harcourt','Benin City','Maiduguri','Zaria','Aba','Jos','Ilorin','Oyo','Enugu','Abeokuta','Onitsha','Warri','Sokoto','Calabar','Uyo','Asaba','Owerri','Akure','Bauchi','Makurdi','Minna','Awka','Nnewi','Umuahia','Yola','Gombe','Lafia','Lokoja','Ado Ekiti','Ikeja'],
     'United Kingdom': ['London','Manchester','Birmingham','Leeds','Glasgow','Sheffield','Bradford','Edinburgh','Liverpool','Bristol','Cardiff','Coventry','Leicester','Nottingham','Newcastle upon Tyne','Southampton','Aberdeen','Brighton','Derby','Plymouth','Oxford','Cambridge','Exeter','York','Bath'],
     'United States': ['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Jacksonville','Fort Worth','Columbus','Charlotte','Indianapolis','San Francisco','Seattle','Denver','Nashville','Atlanta','Miami','Minneapolis','Boston','Portland','Las Vegas','Detroit','Memphis','Baltimore','Washington DC','New Orleans','Milwaukee','Albuquerque','Tucson','Fresno','Sacramento','Kansas City','Omaha','Raleigh','Colorado Springs'],
@@ -613,40 +627,14 @@ export default function CheckoutPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* City */}
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-900 mb-2">City *</label>
-                        {COUNTRY_CITIES[shippingData.country] ? (
-                          <select
-                            value={shippingData.city}
-                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                          >
-                            <option value="">Select City</option>
-                            {COUNTRY_CITIES[shippingData.country].map((c) => (
-                              <option key={c} value={c}>{c}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            type="text"
-                            value={shippingData.city}
-                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
-                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
-                            placeholder="Enter your city"
-                          />
-                        )}
-                        {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
-                      </div>
-
-                      {/* Region (Ghana) or State/Province (international) */}
+                      {/* Region (Ghana) or State/Province (international) — comes first */}
                       <div>
                         {shippingData.country === 'Ghana' ? (
                           <>
                             <label className="block text-sm font-semibold text-gray-900 mb-2">Region *</label>
                             <select
                               value={shippingData.region}
-                              onChange={(e) => setShippingData({ ...shippingData, region: e.target.value })}
+                              onChange={(e) => setShippingData({ ...shippingData, region: e.target.value, city: '' })}
                               className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.region ? 'border-red-500' : 'border-gray-300'}`}
                             >
                               <option value="">Select Region</option>
@@ -670,6 +658,44 @@ export default function CheckoutPage() {
                             />
                           </>
                         )}
+                      </div>
+
+                      {/* City — filtered by region for Ghana */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">City *</label>
+                        {shippingData.country === 'Ghana' ? (
+                          <select
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            disabled={!shippingData.region}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'} ${!shippingData.region ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            <option value="">{shippingData.region ? 'Select City' : 'Select a region first'}</option>
+                            {(GHANA_REGION_CITIES[shippingData.region] || []).map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        ) : COUNTRY_CITIES[shippingData.country] ? (
+                          <select
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 bg-white ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                          >
+                            <option value="">Select City</option>
+                            {COUNTRY_CITIES[shippingData.country].map((c) => (
+                              <option key={c} value={c}>{c}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={shippingData.city}
+                            onChange={(e) => setShippingData({ ...shippingData, city: e.target.value })}
+                            className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${errors.city ? 'border-red-500' : 'border-gray-300'}`}
+                            placeholder="Enter your city"
+                          />
+                        )}
+                        {errors.city && <p className="text-sm text-red-600 mt-1">{errors.city}</p>}
                       </div>
                     </div>
 
