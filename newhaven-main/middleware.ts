@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Simple in-process cache so we don't hit Supabase on every single request.
-// Resets on cold start; good enough for a small store.
+// Maintenance mode cache (15s TTL)
 let cachedMaintenance: { value: boolean; at: number } | null = null;
-const CACHE_TTL_MS = 15_000; // re-check every 15 seconds
+const CACHE_TTL_MS = 15_000;
 
 async function isMaintenanceModeEnabled(): Promise<boolean> {
   const now = Date.now();
@@ -18,7 +17,6 @@ async function isMaintenanceModeEnabled(): Promise<boolean> {
         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
       },
-      // Don't cache at the HTTP layer — we manage the cache ourselves
       cache: 'no-store',
     });
     const data: Array<{ value: string }> = await res.json();
@@ -26,7 +24,6 @@ async function isMaintenanceModeEnabled(): Promise<boolean> {
     cachedMaintenance = { value: enabled, at: now };
     return enabled;
   } catch {
-    // Fail open — never block the site if the DB call fails
     return false;
   }
 }
@@ -34,7 +31,7 @@ async function isMaintenanceModeEnabled(): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ── Admin routes: security headers, skip maintenance check ──────
+  // Admin: security headers, skip maintenance
   if (pathname.startsWith('/admin')) {
     const response = NextResponse.next();
     response.headers.set('X-Robots-Tag', 'noindex, nofollow');
@@ -42,30 +39,30 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // ── Pass through: maintenance page itself, API, static assets ───
+  // Pass through: maintenance page, API, static
   if (
     pathname === '/maintenance' ||
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon') ||
-    // static files (has a dot in the last segment)
     /\.[^/]+$/.test(pathname)
   ) {
     return NextResponse.next();
   }
 
-  // ── Maintenance mode check for all store pages ───────────────────
-  const inMaintenance = await isMaintenanceModeEnabled();
+  // HARDCODED MAINTENANCE — set to true to bypass Supabase check
+  const FORCE_MAINTENANCE = true;
+  const inMaintenance = FORCE_MAINTENANCE || await isMaintenanceModeEnabled();
   if (inMaintenance) {
-    return NextResponse.redirect(new URL('/maintenance', request.url));
+    const isAdmin = request.cookies.get('admin_session')?.value === '1';
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL('/maintenance', request.url));
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    // Run on all routes except Next.js internals and static files
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
