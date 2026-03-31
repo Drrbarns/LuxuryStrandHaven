@@ -57,6 +57,8 @@ export default function AdminOrdersPage() {
   const [showProductStats, setShowProductStats] = useState(false);
   const [productFilter, setProductFilter] = useState('all');
   const [availableProducts, setAvailableProducts] = useState<string[]>([]);
+  /** Paid doorstep orders not yet delivered or cancelled */
+  const [deliveryQueueOnly, setDeliveryQueueOnly] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -306,6 +308,13 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const isPendingDoorstepDelivery = (o: Order) =>
+    o.payment_status === 'paid' &&
+    o.shipping_method === 'doorstep' &&
+    !['delivered', 'cancelled'].includes(o.status || '');
+
+  const pendingDeliveryCount = orders.filter(isPendingDoorstepDelivery).length;
+
   const filteredOrders = orders.filter(order => {
     const customerName = getCustomerName(order).toLowerCase();
     const customerEmail = getCustomerEmail(order).toLowerCase();
@@ -314,6 +323,10 @@ export default function AdminOrdersPage() {
     // First filter by view tab (confirmed vs abandoned)
     const isConfirmed = order.payment_status === 'paid';
     const matchesViewTab = orderViewTab === 'confirmed' ? isConfirmed : !isConfirmed;
+
+    if (deliveryQueueOnly && orderViewTab === 'confirmed' && !isPendingDoorstepDelivery(order)) {
+      return false;
+    }
 
     const matchesSearch = orderId.includes(searchQuery.toLowerCase()) ||
       customerName.includes(searchQuery.toLowerCase()) ||
@@ -352,7 +365,7 @@ export default function AdminOrdersPage() {
       {/* View Tabs: Confirmed Orders vs Abandoned Carts */}
       <div className="flex border-b border-gray-200">
         <button
-          onClick={() => { setOrderViewTab('confirmed'); setStatusFilter('all'); }}
+          onClick={() => { setOrderViewTab('confirmed'); setStatusFilter('all'); setDeliveryQueueOnly(false); }}
           className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors cursor-pointer ${
             orderViewTab === 'confirmed'
               ? 'border-gray-900 text-gray-900'
@@ -363,7 +376,7 @@ export default function AdminOrdersPage() {
           Confirmed Orders ({confirmedCount})
         </button>
         <button
-          onClick={() => { setOrderViewTab('abandoned'); setStatusFilter('all'); }}
+          onClick={() => { setOrderViewTab('abandoned'); setStatusFilter('all'); setDeliveryQueueOnly(false); }}
           className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors cursor-pointer ${
             orderViewTab === 'abandoned'
               ? 'border-amber-600 text-amber-600'
@@ -376,12 +389,40 @@ export default function AdminOrdersPage() {
       </div>
 
       {orderViewTab === 'confirmed' && (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={() => {
+            if (deliveryQueueOnly) {
+              setDeliveryQueueOnly(false);
+            } else {
+              setDeliveryQueueOnly(true);
+              setStatusFilter('all');
+            }
+          }}
+          className={`w-full sm:w-auto flex items-center gap-3 px-5 py-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
+            deliveryQueueOnly
+              ? 'border-amber-500 bg-amber-50 ring-2 ring-amber-200'
+              : 'border-amber-200 bg-white hover:border-amber-300'
+          }`}
+        >
+          <div className="w-11 h-11 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+            <i className="ri-truck-line text-xl text-amber-800"></i>
+          </div>
+          <div>
+            <p className="font-bold text-gray-900">Pending doorstep deliveries</p>
+            <p className="text-sm text-gray-600">
+              {pendingDeliveryCount} paid order{pendingDeliveryCount !== 1 ? 's' : ''} waiting to be delivered
+              {deliveryQueueOnly ? ' — click again to show all confirmed orders' : ' — click to show only these orders'}
+            </p>
+          </div>
+        </button>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {orderStats.map((stat) => (
           <button
             key={stat.status}
-            onClick={() => setStatusFilter(stat.status)}
-            className={`p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${statusFilter === stat.status
+            onClick={() => { setStatusFilter(stat.status); setDeliveryQueueOnly(false); }}
+            className={`p-4 rounded-xl border-2 transition-all text-left cursor-pointer ${statusFilter === stat.status && !deliveryQueueOnly
               ? 'border-gray-900 bg-gray-50'
               : 'border-gray-200 bg-white hover:border-gray-300'
               }`}
@@ -390,6 +431,7 @@ export default function AdminOrdersPage() {
             <p className="text-sm text-gray-600 mt-1">{stat.label}</p>
           </button>
         ))}
+        </div>
       </div>
       )}
 
