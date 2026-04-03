@@ -50,9 +50,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // HARDCODED MAINTENANCE — set to true to bypass Supabase check
-  const FORCE_MAINTENANCE = true;
-  const inMaintenance = FORCE_MAINTENANCE || await isMaintenanceModeEnabled();
+  const inMaintenance = await isMaintenanceModeEnabled();
   if (inMaintenance) {
     const isAdmin = request.cookies.get('admin_session')?.value === '1';
     if (!isAdmin) {
