@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Hair Academia — Online Classes | Luxury Strand Haven',
     description: 'Learn wig making, HD lace techniques and hair business management from Ghana\'s premier hair experts.',
-    images: [{ url: '/logo.png?v=3', alt: 'Luxury Strand Haven', type: 'image/png' }],
+    images: [{ url: '/logo.png?v=4', alt: 'Luxury Strand Haven', type: 'image/png' }],
     url: '/academia',
     locale: 'en_GH',
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'Hair Academia | Luxury Strand Haven',
     description: 'Online wig making and hair classes from Ghana\'s premier hair brand.',
-    images: [{ url: '/logo.png?v=3', alt: 'Luxury Strand Haven' }],
+    images: [{ url: '/logo.png?v=4', alt: 'Luxury Strand Haven' }],
   },
   alternates: { canonical: '/academia' },
 };

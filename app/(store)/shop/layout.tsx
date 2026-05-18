@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Shop Premium Hair Collection | Luxury Strand Haven',
     description: 'Browse our full range of 100% human hair wigs, bundles, closures & frontals. Custom luxury wigs, HD lace, virgin hair — fast delivery across Ghana.',
-    images: [{ url: '/logo.png?v=3', alt: 'Luxury Strand Haven', type: 'image/png' }],
+    images: [{ url: '/logo.png?v=4', alt: 'Luxury Strand Haven', type: 'image/png' }],
     url: '/shop',
     type: 'website',
     locale: 'en_GH',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: 'summary',
     title: 'Shop Premium Hair Collection | Luxury Strand Haven',
     description: 'Browse wigs, bundles, closures & frontals at Luxury Strand Haven Ghana.',
-    images: [{ url: '/logo.png?v=3', alt: 'Luxury Strand Haven' }],
+    images: [{ url: '/logo.png?v=4', alt: 'Luxury Strand Haven' }],
   },
   alternates: { canonical: '/shop' },
 };

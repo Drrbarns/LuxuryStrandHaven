@@ -5,7 +5,7 @@ const SITE_NAME = 'Luxury Strand Haven';
 // Forced site logo for social previews. The ?v= query is a cache-buster so
 // Facebook/Twitter/WhatsApp re-scrape the page rather than serve their old
 // cached preview image. Bump the number whenever the logo changes.
-const DEFAULT_OG = '/logo.png?v=3';
+const DEFAULT_OG = '/logo.png?v=4';
 
 const BASE_KEYWORDS = [
   'luxury wigs Ghana', 'human hair wigs Ghana', 'custom wigs Ghana',
