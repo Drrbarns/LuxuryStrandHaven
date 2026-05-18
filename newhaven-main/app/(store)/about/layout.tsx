@@ -11,15 +11,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About Luxury Strand Haven | Ghana\'s Premier Hair Brand',
     description: 'Ghana\'s most trusted premium hair brand — custom wigs, bundles, closures & frontals.',
-    images: [{ url: '/og-home.png', width: 1200, height: 630, alt: 'About Luxury Strand Haven — Premium Hair Ghana', type: 'image/png' }],
+    images: [{ url: '/logo.png?v=3', alt: 'Luxury Strand Haven', type: 'image/png' }],
     url: '/about',
     locale: 'en_GH',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'About Luxury Strand Haven | Ghana\'s Premier Hair Brand',
     description: 'Ghana\'s most trusted premium hair brand.',
-    images: ['/og-home.png'],
+    images: ['/logo.png?v=3'],
   },
   alternates: { canonical: '/about' },
 };

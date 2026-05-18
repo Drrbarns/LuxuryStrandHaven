@@ -11,15 +11,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Hair Categories | Luxury Strand Haven Ghana',
     description: 'All hair categories — wigs, bundles, closures, frontals, braiding extensions and more at Luxury Strand Haven.',
-    images: [{ url: '/og-shop.png', width: 1200, height: 630, alt: 'Hair Categories — Luxury Strand Haven Ghana', type: 'image/png' }],
+    images: [{ url: '/logo.png?v=3', alt: 'Luxury Strand Haven', type: 'image/png' }],
     url: '/categories',
     locale: 'en_GH',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'Hair Categories | Luxury Strand Haven',
     description: 'All hair categories at Luxury Strand Haven Ghana.',
-    images: ['/og-shop.png'],
+    images: ['/logo.png?v=3'],
   },
   alternates: { canonical: '/categories' },
 };

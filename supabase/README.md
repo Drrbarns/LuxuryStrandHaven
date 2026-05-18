@@ -1,237 +1,183 @@
-# Supabase Database Migrations
+# Luxury Strand Haven — Database
 
-This folder contains all SQL migration files for your e-commerce store database.
+Everything needed to **clone this site's database into a brand-new Supabase project**.
 
-## 📁 Migration Files
-
-### 001_initial_schema.sql
-**Complete database schema** with all tables:
-- User profiles and addresses
-- Products, variants, and categories
-- Orders and order items
-- Cart and wishlist
-- Reviews and ratings
-- Coupons and loyalty program
-- Blog posts
-- Support tickets and returns
-- Notifications
-- All indexes for optimal performance
-
-### 002_row_level_security.sql
-**Security policies (RLS)** to protect user data:
-- Users can only access their own data
-- Public read access for products, categories, blog posts
-- Secure order and payment information
-- Protected personal information
-- Admin-only access where needed
-
-### 003_functions_and_triggers.sql
-**Automated database operations**:
-- Auto-generate order/ticket/return numbers
-- Update timestamps automatically
-- Create user profiles on signup
-- Award loyalty points on orders
-- Update product inventory
-- Calculate order totals
-- Manage default addresses
-- Track coupon usage
-
-### 004_storage_buckets.sql
-**File storage configuration**:
-- Product images
-- User avatars
-- Review images
-- Blog images
-- Category images
-- Upload/download policies
-
-### 005_sample_data.sql (Optional)
-**Test data for development**:
-- Sample categories
-- Sample products
-- Sample coupons
-- Sample blog posts
-
-## 🚀 How to Use
-
-### Method 1: Supabase Dashboard (Recommended)
-
-1. **Connect to your Supabase project** (Dashboard or CLI)
-2. **Copy each SQL file content**
-3. **Go to Supabase Dashboard** → SQL Editor
-4. **Run migrations in order** (001 → 002 → 003 → 004 → 005)
-5. **Execute each file** one by one
-
-### Method 2: Supabase CLI
-
-```bash
-# Install Supabase CLI
-npm install -g supabase
-
-# Login to Supabase
-supabase login
-
-# Link your project
-supabase link --project-ref your-project-ref
-
-# Run migrations
-supabase db push
-```
-
-### Method 3: Manual SQL Execution
-
-1. **Open Supabase Dashboard**
-2. **Navigate to SQL Editor**
-3. **Copy and paste each file**
-4. **Run in correct order**
-
-## ⚠️ Important Notes
-
-### Migration Order
-**Must run in this exact order:**
-1. ✅ 001_initial_schema.sql (creates tables)
-2. ✅ 002_row_level_security.sql (adds security)
-3. ✅ 003_functions_and_triggers.sql (adds automation)
-4. ✅ 004_storage_buckets.sql (configures storage)
-5. ✅ 005_sample_data.sql (optional test data)
-
-### Security
-- **RLS is enabled** on all tables
-- **Users can only access their own data**
-- **Products and blog posts are public**
-- **Admin functions require authentication**
-
-### Sample Data
-- File `005_sample_data.sql` is **optional**
-- Use for **testing and development only**
-- **Delete or comment out** before production deployment
-
-## 🔧 Customization
-
-### Adding New Tables
-Add to `001_initial_schema.sql`:
-```sql
-CREATE TABLE IF NOT EXISTS your_table (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  -- your columns
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-### Adding RLS Policies
-Add to `002_row_level_security.sql`:
-```sql
-ALTER TABLE your_table ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "policy_name"
-  ON your_table FOR SELECT
-  USING (auth.uid() = user_id);
-```
-
-### Adding Triggers
-Add to `003_functions_and_triggers.sql`:
-```sql
-CREATE TRIGGER your_trigger
-  BEFORE INSERT ON your_table
-  FOR EACH ROW
-  EXECUTE FUNCTION your_function();
-```
-
-## 📊 Database Schema Overview
-
-### Core Tables
-- **profiles** - User profile information
-- **addresses** - Shipping and billing addresses
-- **products** - Product catalog
-- **product_variants** - Product options (size, color, etc.)
-- **categories** - Product categories
-
-### E-commerce Tables
-- **orders** - Order information
-- **order_items** - Products in each order
-- **cart_items** - Shopping cart
-- **wishlist_items** - User wishlists
-- **reviews** - Product reviews and ratings
-
-### Marketing Tables
-- **coupons** - Discount codes
-- **loyalty_points** - Customer loyalty program
-- **loyalty_transactions** - Points history
-- **blog_posts** - Content marketing
-
-### Support Tables
-- **support_tickets** - Customer support
-- **support_messages** - Ticket conversations
-- **return_requests** - Product returns
-- **return_items** - Items being returned
-- **notifications** - User notifications
-
-## 🔐 Default Policies
-
-### User Data
-✅ Users can view/edit their own profile  
-✅ Users can manage their addresses  
-✅ Users can view their orders  
-✅ Users can manage their cart/wishlist  
-
-### Public Data
-✅ Anyone can view products  
-✅ Anyone can view categories  
-✅ Anyone can view blog posts  
-✅ Anyone can view approved reviews  
-
-### Protected Data
-🔒 Orders are private  
-🔒 Personal information is private  
-🔒 Payment details are secure  
-🔒 Admin functions require authentication  
-
-## 🎯 Next Steps
-
-After running migrations:
-
-1. **Connect your Supabase project** (Dashboard or CLI)
-2. **Set up authentication** (email, Google, etc.)
-3. **Configure storage** for image uploads
-4. **Add products** via admin panel or API
-5. **Test RLS policies** with different users
-6. **Deploy edge functions** for checkout/payments
-
-## 📚 Resources
-
-- [Supabase Documentation](https://supabase.com/docs)
-- [Row Level Security Guide](https://supabase.com/docs/guides/auth/row-level-security)
-- [PostgreSQL Functions](https://www.postgresql.org/docs/current/plpgsql.html)
-- [Storage Policies](https://supabase.com/docs/guides/storage)
-
-## 🆘 Troubleshooting
-
-### Migration Fails
-- Check if tables already exist
-- Run migrations in correct order
-- Check for syntax errors
-- Verify Supabase connection
-
-### RLS Issues
-- Ensure policies are created
-- Check user authentication
-- Verify policy conditions
-- Test with different users
-
-### Trigger Problems
-- Check function definitions
-- Verify trigger timing (BEFORE/AFTER)
-- Test with sample data
-- Review error messages
-
-## 💡 Tips
-
-✅ **Always backup** before running migrations  
-✅ **Test in development** environment first  
-✅ **Review policies** before production  
-✅ **Monitor performance** with indexes  
-✅ **Document changes** for your team  
+There are two ways to bring the DB up. Pick **one**.
 
 ---
 
-**Ready to deploy?** Link your Supabase project and run these migrations.
+## 🚀 Fastest path — single-shot clone
+
+Use this when you just want a new Supabase project to match production **right now**.
+
+1. Create a new project at [supabase.com](https://supabase.com) (note the URL + anon/service keys).
+2. Open **SQL Editor** → **New query**.
+3. Paste the **entire contents of [`schema.sql`](./schema.sql)** and click **Run**.
+   This creates extensions, enums, tables, functions, indexes, triggers, RLS policies, storage buckets and storage policies — all idempotent, so it's safe to re-run.
+4. (Optional) Paste the contents of [`seed.sql`](./seed.sql) and click **Run** to load default feature flags, store settings and an "Uncategorized" category.
+5. Copy your new project's credentials into `.env.local`:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   SUPABASE_SERVICE_ROLE_KEY=...
+   ```
+6. Create your admin user:
+   - Sign up through the app (or Supabase **Authentication → Users**).
+   - Promote them to admin in SQL Editor:
+     ```sql
+     UPDATE public.profiles SET role = 'admin' WHERE email = 'you@example.com';
+     ```
+
+Done. The whole site will work against the new project.
+
+---
+
+## 🧰 CLI path — versioned migrations
+
+Use this if you want to keep the database under version control and track incremental migrations.
+
+```bash
+npm install -g supabase
+supabase login
+supabase link --project-ref <your-new-project-ref>
+supabase db push         # applies every file under supabase/migrations
+```
+
+Then optionally seed:
+```bash
+psql "$DATABASE_URL" -f supabase/seed.sql
+```
+
+### Current migrations (run in order automatically)
+
+| Order | File | What it does |
+|------:|------|--------------|
+| 1 | `20260209000000_complete_schema.sql` | Core schema — all ~30 e-commerce tables, RLS, functions, storage |
+| 2 | `20260313000000_academia_courses.sql` | Adds the Academia / online-courses table |
+| 3 | `20260423000000_product_links_and_contact.sql` | Adds `product_category_links` (multi-category products) and `contact_submissions` (contact form) |
+
+Future schema changes → add a **new** timestamped file under `supabase/migrations/`. Never edit historical migrations.
+
+---
+
+## 📋 Complete table inventory
+
+### Core e-commerce
+`profiles` · `addresses` · `categories` · `products` · `product_images` · `product_variants` · `product_category_links` · `coupons`
+
+### Orders & payments
+`orders` · `order_items` · `order_status_history` · `customers`
+
+### Customer activity
+`cart_items` · `wishlist_items` · `reviews` · `review_images`
+
+### Content / CMS
+`blog_posts` · `pages` · `site_settings` · `store_settings` · `cms_content` · `banners` · `navigation_menus` · `navigation_items` · `academia_courses`
+
+### Support & operations
+`support_tickets` · `support_messages` · `return_requests` · `return_items` · `notifications` · `contact_submissions` · `audit_logs`
+
+### Admin
+`store_modules` (feature flags)
+
+---
+
+## 🔐 Security model (RLS)
+
+| Scope | Who can do what |
+|-------|-----------------|
+| Public (anon) | Read: active products, categories, published blog posts, approved reviews, banners, navigation, pages, CMS content, site settings |
+| Authenticated user | CRUD own profile / addresses / cart / wishlist / reviews / tickets / orders |
+| Admin/Staff (`profiles.role IN ('admin','staff')`) | Full CRUD on everything |
+| Service role | Bypasses RLS (used by server-side API routes only) |
+
+The helper `public.is_admin_or_staff()` is the central gate — re-used across every admin policy so permission changes only need to happen in one place.
+
+---
+
+## 🔧 Database functions (RPC)
+
+| Function | Used by | Purpose |
+|----------|---------|---------|
+| `is_admin_or_staff()` | RLS policies | Checks current user's role |
+| `handle_new_user()` | `auth.users` trigger | Auto-creates a `profiles` row on signup |
+| `update_updated_at_column()` | every "updated_at" trigger | Keeps `updated_at` current |
+| `update_product_rating_stats()` | reviews trigger | Recomputes `rating_avg` + `review_count` |
+| `upsert_customer_from_order(...)` | checkout + POS | Creates/updates the CRM `customers` row |
+| `update_customer_stats(email, total)` | payment webhooks | Bumps order totals per customer |
+| `mark_order_paid(order_ref, ref)` | payment webhooks (Moolre, Paystack, Stripe, PayPal) | Sets paid, reduces stock atomically |
+| `reduce_stock_on_order(order_id)` | POS / manual | Reduces product + variant stock for an order |
+| `get_all_customer_emails()` / `get_all_customer_phones()` | marketing UI | De-duped primary + secondary contact lists |
+
+---
+
+## 🪣 Storage buckets
+
+All buckets are **public-read**, staff-write:
+
+- `products` — product images
+- `avatars` — user avatars
+- `blog` — blog post hero images
+- `media` — generic media uploads
+- `reviews` — customer review images
+- `site-assets` — logo, favicon, hero slides (service-role writeable for settings page)
+
+---
+
+## ✅ Verifying your clone
+
+After running `schema.sql` + `seed.sql`, this should all pass in SQL Editor:
+
+```sql
+-- Should return 33+ rows
+SELECT count(*) FROM pg_tables WHERE schemaname = 'public';
+
+-- Should return 6 buckets
+SELECT id FROM storage.buckets;
+
+-- Should return all 13 enums
+SELECT count(*) FROM pg_type WHERE typname IN
+ ('user_role','gender_type','address_type','product_status','category_status',
+  'order_status','payment_status','discount_type','review_status','blog_status',
+  'ticket_status','ticket_priority','return_status');
+
+-- Should return 8 feature-flag rows
+SELECT id, enabled FROM public.store_modules ORDER BY id;
+
+-- RLS is on for every public table
+SELECT tablename FROM pg_tables
+WHERE schemaname = 'public'
+  AND tablename NOT IN (
+    SELECT c.relname FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relrowsecurity = true
+  );
+-- → should return 0 rows
+```
+
+---
+
+## 📤 Migrating data from an existing project
+
+If you need to copy production **data** (not just the schema) into the new project:
+
+1. In the **old** project's SQL Editor, export each table as CSV (Database → Table Editor → ⋯ → Export to CSV), or use:
+   ```bash
+   supabase db dump --data-only --schema public > data.sql
+   ```
+2. Import into the new project:
+   ```bash
+   psql "$NEW_DATABASE_URL" -f data.sql
+   ```
+3. Also copy storage files — Supabase doesn't copy these automatically. Either:
+   - Use `supabase storage` CLI commands, or
+   - Re-upload from the admin panel.
+
+---
+
+## ⚠️ Gotchas
+
+- **Always run `schema.sql` before `seed.sql`.** Seed depends on tables existing.
+- **`auth.users` is managed by Supabase.** Don't try to `INSERT` into it in SQL — use the Auth API or Dashboard to create users. The `on_auth_user_created` trigger will auto-populate `profiles`.
+- **Changing roles:** new accounts start as `customer`. Promote to `admin` via the SQL snippet above.
+- **Re-running `schema.sql`** is safe (idempotent) — but running old numbered migrations twice is **not** (they use `CREATE TABLE` without `IF NOT EXISTS`). Use `schema.sql` for re-runs.

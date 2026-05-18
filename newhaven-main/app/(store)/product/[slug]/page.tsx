@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const productUrl = `${SITE_URL}/product/${slug}`;
-  const ogImage = product.images?.[0]?.url || '/og-shop.png';
+  const ogImage = product.images?.[0]?.url || '/logo.png?v=3';
   const title = `${product.name} | ${SITE_NAME}`;
   const description = product.description
     ? `${product.description.slice(0, 155)}...`

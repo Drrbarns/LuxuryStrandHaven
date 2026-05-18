@@ -10,15 +10,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Contact Luxury Strand Haven | Premium Hair Ghana',
     description: 'Contact us for custom wig orders, wholesale enquiries and hair consultations.',
-    images: [{ url: '/og-home.png', width: 1200, height: 630, alt: 'Contact Luxury Strand Haven Ghana', type: 'image/png' }],
+    images: [{ url: '/logo.png?v=3', alt: 'Luxury Strand Haven', type: 'image/png' }],
     url: '/contact',
     locale: 'en_GH',
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: 'Contact Luxury Strand Haven | Premium Hair Ghana',
     description: 'Contact us for custom wig orders and hair consultations.',
-    images: ['/og-home.png'],
+    images: ['/logo.png?v=3'],
   },
   alternates: { canonical: '/contact' },
 };

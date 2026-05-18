@@ -19,6 +19,13 @@ const siteName = 'Luxury Strand Haven';
 const siteTagline = 'Premium Wigs & Hair in Ghana';
 const siteDescription = 'Shop 100% human hair wigs, bundles, closures & frontals at Luxury Strand Haven. Custom luxury wigs, HD lace frontals, raw hair bundles, virgin hair & more. Fast delivery across Ghana. Ghana\'s premier premium hair destination.';
 
+// Force the site logo as the favicon, social-share, OpenGraph, Twitter and
+// JSON-LD image. The ?v= query is a cache-buster so Facebook/Twitter/WhatsApp
+// re-scrape the page instead of serving their cached older preview images.
+// Bump the number whenever the logo changes.
+export const SOCIAL_IMAGE = '/logo.png?v=3';
+const SOCIAL_IMAGE_ABS = `${siteUrl}/logo.png?v=3`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
@@ -67,10 +74,19 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/logo.png', type: 'image/png' },
+      { url: SOCIAL_IMAGE, type: 'image/png', sizes: 'any' },
+      { url: SOCIAL_IMAGE, type: 'image/png', sizes: '16x16' },
+      { url: SOCIAL_IMAGE, type: 'image/png', sizes: '32x32' },
+      { url: SOCIAL_IMAGE, type: 'image/png', sizes: '192x192' },
+      { url: SOCIAL_IMAGE, type: 'image/png', sizes: '512x512' },
     ],
-    apple: '/logo.png',
-    shortcut: '/logo.png',
+    apple: [
+      { url: SOCIAL_IMAGE, sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: SOCIAL_IMAGE,
+    other: [
+      { rel: 'mask-icon', url: SOCIAL_IMAGE, color: '#000000' },
+    ],
   },
   manifest: '/manifest.json',
   verification: {
@@ -85,19 +101,17 @@ export const metadata: Metadata = {
     siteName: siteName,
     images: [
       {
-        url: '/og-home.png',
-        width: 1200,
-        height: 630,
+        url: SOCIAL_IMAGE,
         alt: `${siteName} — Premium Hair Collection Ghana`,
         type: 'image/png',
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: 'summary',
     title: `${siteName} | ${siteTagline}`,
     description: siteDescription,
-    images: [{ url: '/og-home.png', alt: `${siteName} — Premium Hair Collection Ghana` }],
+    images: [{ url: SOCIAL_IMAGE, alt: `${siteName} — Premium Hair Collection Ghana` }],
     creator: '@luxurystrandhaven',
     site: '@luxurystrandhaven',
   },
@@ -127,6 +141,19 @@ export default function RootLayout({
   return (
     <html lang="en-GH">
       <head>
+        {/* Force favicon / app icon to use the site logo. These hardcoded
+            <link>/<meta> tags take precedence over anything cached by the
+            browser, the CDN, or social-media scrapers. */}
+        <link rel="icon" type="image/png" href={SOCIAL_IMAGE} />
+        <link rel="shortcut icon" type="image/png" href={SOCIAL_IMAGE} />
+        <link rel="apple-touch-icon" sizes="180x180" href={SOCIAL_IMAGE} />
+        <link rel="mask-icon" href={SOCIAL_IMAGE} color="#000000" />
+        <meta property="og:image" content={SOCIAL_IMAGE_ABS} />
+        <meta property="og:image:secure_url" content={SOCIAL_IMAGE_ABS} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:alt" content={`${siteName} logo`} />
+        <meta name="twitter:image" content={SOCIAL_IMAGE_ABS} />
+
         <link
           href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css"
           rel="stylesheet"
@@ -138,8 +165,8 @@ export default function RootLayout({
           "name": "Luxury Strand Haven",
           "alternateName": "LSH",
           "url": siteUrl,
-          "logo": { "@type": "ImageObject", "url": `${siteUrl}/logo.png`, "width": 1024, "height": 1024 },
-          "image": `${siteUrl}/og-home.png`,
+          "logo": { "@type": "ImageObject", "url": SOCIAL_IMAGE_ABS, "width": 1024, "height": 1024 },
+          "image": SOCIAL_IMAGE_ABS,
           "description": "Ghana's premier destination for 100% human hair wigs, bundles, closures & frontals. Custom luxury wigs, HD lace, raw hair and more.",
           "foundingDate": "2020",
           "addressCountry": "GH",
@@ -202,8 +229,8 @@ export default function RootLayout({
           "name": "Luxury Strand Haven",
           "description": "Premium human hair wigs, bundles, closures & frontals. Custom wigs and hair academy. Fast delivery across Ghana.",
           "url": siteUrl,
-          "image": `${siteUrl}/og-home.png`,
-          "logo": `${siteUrl}/logo.png`,
+          "image": SOCIAL_IMAGE_ABS,
+          "logo": SOCIAL_IMAGE_ABS,
           "priceRange": "GHS",
           "currenciesAccepted": "GHS",
           "paymentAccepted": "Mobile Money, Bank Transfer, Cash",

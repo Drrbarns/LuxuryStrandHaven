@@ -2,7 +2,10 @@ import { Metadata } from 'next';
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://luxury-strand-haven.vercel.app';
 const SITE_NAME = 'Luxury Strand Haven';
-const DEFAULT_OG = '/og-home.png';
+// Forced site logo for social previews. The ?v= query is a cache-buster so
+// Facebook/Twitter/WhatsApp re-scrape the page rather than serve their old
+// cached preview image. Bump the number whenever the logo changes.
+const DEFAULT_OG = '/logo.png?v=3';
 
 const BASE_KEYWORDS = [
   'luxury wigs Ghana', 'human hair wigs Ghana', 'custom wigs Ghana',
@@ -50,14 +53,14 @@ export function generateMetadata({
     openGraph: {
       title: pageTitle,
       description,
-      images: [{ url: ogImage, width: 1200, height: 630, alt: ogImageAlt || pageTitle, type: 'image/png' }],
+      images: [{ url: ogImage, alt: ogImageAlt || pageTitle, type: 'image/png' }],
       type: ogType as any,
       siteName: SITE_NAME,
       locale: 'en_GH',
       url: canonicalUrl,
     },
     twitter: {
-      card: 'summary_large_image',
+      card: ogImage === DEFAULT_OG ? 'summary' : 'summary_large_image',
       title: pageTitle,
       description,
       images: [{ url: ogImage, alt: ogImageAlt || pageTitle }],
