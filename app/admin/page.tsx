@@ -180,7 +180,7 @@ export default function AdminDashboard() {
         // 5. Fetch Top Products (Approximation: High Price or just Random for now, 
         // real top selling requires aggregation on order_items which is complex for client-side)
         // real top selling requires aggregation on order_items which is complex for client-side)
-        const { data: productData } = await supabase.from('products').select('*, product_images!product_id(url, position)').order('position', { foreignTable: 'product_images', ascending: true }).limit(4);
+        const { data: productData } = await supabase.from('products').select('*, product_images(url, position)').order('created_at', { ascending: false }).limit(4);
         if (productData) {
           setTopProducts(productData.map((p: any) => {
             const imgFromRelation = p.product_images?.[0]?.url;

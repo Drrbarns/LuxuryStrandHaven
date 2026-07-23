@@ -1,55 +1,47 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
-// Server-side Supabase client (no auth needed for public data)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 24;
 
-// Simple in-memory cache
-let cache: { data: any; timestamp: number } | null = null;
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutes — products don't change frequently
+function sortImages(products: any[] | null) {
+    if (!products) return [];
+    return products.map((p) => {
+        const images = Array.isArray(p.product_images)
+            ? [...p.product_images].sort(
+                  (a, b) => (a?.position ?? 0) - (b?.position ?? 0)
+              )
+            : p.product_images;
+        return { ...p, product_images: images };
+    });
+}
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const featured = searchParams.get('featured') === 'true';
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limit = Math.min(
+        parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT,
+        MAX_LIMIT
+    );
     const category = searchParams.get('category');
 
-    // Build a cache key from params
-    const cacheKey = `${featured}-${limit}-${category || 'all'}`;
-
-    // Check cache (only for featured/home requests — general shop is more dynamic)
-    if (featured && cache && cache.data?.[cacheKey] && Date.now() - cache.timestamp < CACHE_TTL) {
-        return NextResponse.json(cache.data[cacheKey], {
-            headers: {
-                'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=1800',
-                'X-Cache': 'HIT'
-            }
-        });
-    }
-
     try {
-        let query = supabase
+        let query = supabaseAdmin
             .from('products')
             .select(`
-                id, name, slug, price, compare_at_price, quantity, description, metadata, brand, vendor,
+                id, name, slug, price, compare_at_price, quantity, description, metadata, brand, vendor, featured,
                 categories(id, name, slug),
                 product_images(url, position),
-                product_variants(id, name, price, quantity)
+                product_variants(id, name, price, quantity, option1, option2, image_url)
             `)
-            .order('created_at', { ascending: false });
-
-        // Always filter active products
-        query = query.eq('status', 'active');
+            .eq('status', 'active');
 
         if (featured) {
-            query = query.eq('featured', true).limit(limit);
+            query = query.eq('featured', true).order('updated_at', { ascending: false }).limit(limit);
         } else if (category) {
-            // Filter by category slug or name
-            query = query.limit(limit);
+            query = query.order('created_at', { ascending: false }).limit(limit);
         } else {
-            query = query.limit(limit);
+            query = query.order('created_at', { ascending: false }).limit(limit);
         }
 
         const { data, error } = await query;
@@ -59,19 +51,16 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
         }
 
-        // Cache the result
-        if (!cache) cache = { data: {}, timestamp: Date.now() };
-        cache.data[cacheKey] = data;
-        cache.timestamp = Date.now();
-
-        return NextResponse.json(data, {
+        return NextResponse.json(sortImages(data), {
             headers: {
-                'Cache-Control': 'public, s-maxage=900, stale-while-revalidate=1800',
-                'X-Cache': 'MISS'
-            }
+                'Cache-Control': featured
+                    ? 'public, s-maxage=60, stale-while-revalidate=120'
+                    : 'public, s-maxage=120, stale-while-revalidate=300',
+            },
         });
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
         console.error('[Storefront API] Error:', err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

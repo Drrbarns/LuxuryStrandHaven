@@ -104,8 +104,7 @@ function ShopContent() {
                 product_images!product_id(url, position),
                 product_variants!product_id(id, name, price, compare_at_price, quantity, option1, option2, image_url)
               `, { count: 'exact' })
-              .eq('status', 'active')
-              .order('position', { foreignTable: 'product_images', ascending: true });
+              .eq('status', 'active');
 
             // Search
             if (search) {
@@ -168,6 +167,11 @@ function ShopContent() {
 
         if (data) {
           const formattedProducts = data.map((p: any) => {
+            const sortedImages = Array.isArray(p.product_images)
+              ? [...p.product_images].sort(
+                  (a: any, b: any) => (a?.position ?? 0) - (b?.position ?? 0)
+                )
+              : p.product_images;
             const variants = p.product_variants || [];
             const hasVariants = variants.length > 0;
             const minVariantPrice = hasVariants ? Math.min(...variants.map((v: any) => v.price || p.price)) : undefined;
@@ -202,7 +206,7 @@ function ShopContent() {
               name: p.name,
               price: p.price,
               originalPrice: p.compare_at_price,
-              image: p.product_images?.[0]?.url || 'https://via.placeholder.com/800x800?text=No+Image',
+              image: sortedImages?.[0]?.url || 'https://via.placeholder.com/800x800?text=No+Image',
               rating: p.rating_avg || 0,
               reviewCount: 0, // Need to implement reviews relation
               badge: p.compare_at_price > p.price ? 'Sale' : undefined, // Simple badge logic
