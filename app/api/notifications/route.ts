@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import { sendOrderConfirmation, sendOrderStatusUpdate, sendWelcomeMessage, sendContactMessage, sendPaymentLink, sendEmail, sendSMS, emailLayout } from '@/lib/notifications';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// Use service role key on server-side to bypass RLS for admin verification
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export async function POST(request: Request) {
     try {
@@ -33,9 +29,6 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Payload required' }, { status: 400 });
         }
 
-        // Use service role key to bypass RLS for server-side operations
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
         // Authentication requirements based on notification type
         // 'campaign' requires admin/staff role
         // 'order_updated', 'order_status' requires admin/staff role (status updates from admin)
@@ -49,14 +42,14 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
             }
 
-            const { data: { user }, error } = await supabase.auth.getUser(authToken);
+            const { data: { user }, error } = await supabaseAdmin.auth.getUser(authToken);
             if (error || !user) {
                 console.error('[Notifications] Auth failed:', error?.message);
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
             }
 
             // Verify admin/staff role (using service role key bypasses RLS)
-            const { data: profile, error: profileError } = await supabase
+            const { data: profile, error: profileError } = await supabaseAdmin
                 .from('profiles')
                 .select('role')
                 .eq('id', user.id)
@@ -88,7 +81,7 @@ export async function POST(request: Request) {
             const { email, name, orderNumber, status, trackingNumber, phone } = payload;
             
             // Fetch full order data to get metadata (tracking number etc.)
-            const { data: fullOrder } = await supabase
+            const { data: fullOrder } = await supabaseAdmin
                 .from('orders')
                 .select('id, order_number, email, phone, shipping_address, metadata')
                 .eq('order_number', orderNumber)

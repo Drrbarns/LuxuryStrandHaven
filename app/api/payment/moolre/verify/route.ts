@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import { sendOrderConfirmation } from '@/lib/notifications';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
  * Payment verification endpoint.
@@ -27,7 +23,7 @@ export async function POST(req: Request) {
         console.log('[Verify] Checking payment for:', orderNumber, '| fromRedirect:', fromRedirect);
 
         // 1. Check current order status
-        const { data: order, error: fetchError } = await supabase
+        const { data: order, error: fetchError } = await supabaseAdmin
             .from('orders')
             .select('id, order_number, payment_status, status, total, email, phone, shipping_address, metadata')
             .eq('order_number', orderNumber)
@@ -106,7 +102,7 @@ export async function POST(req: Request) {
         console.log('[Verify] Marking order paid via:', verifySource, 'for:', orderNumber);
 
         // 5. Mark as paid
-        const { data: orderJson, error: updateError } = await supabase
+        const { data: orderJson, error: updateError } = await supabaseAdmin
             .rpc('mark_order_paid', {
                 order_ref: orderNumber,
                 moolre_ref: verifySource
@@ -122,7 +118,7 @@ export async function POST(req: Request) {
         // 6. Update customer stats
         if (orderJson?.email) {
             try {
-                await supabase.rpc('update_customer_stats', {
+                await supabaseAdmin.rpc('update_customer_stats', {
                     p_customer_email: orderJson.email,
                     p_order_total: orderJson.total
                 });
